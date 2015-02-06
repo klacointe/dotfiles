@@ -1,0 +1,36 @@
+[user]
+  name = klacointe
+  email = kevinlacointe@gmail.com
+[github]
+  user = klacointe
+[alias]
+  st = status
+  ci = commit
+  br = branch
+  co = checkout
+  dc = diff --cached
+  pr = pull --rebase
+  spull = !git-svn fetch && git-svn rebase
+  spush = !git-svn dcommit
+  lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+  msg = commit --allow-empty -m
+  gerp = grep
+[color]
+  branch = auto
+  diff = auto
+  interactive = auto
+  status = auto
+  ui = auto
+  pager = true
+[core]
+  editor = vim
+  whitespace = trailing-space,space-before-tab
+[diff]
+  renames = true
+[branch]
+  autosetupmerge = true
+  autosetuprebase = always
+[push]
+  default = tracking
+[web]
+  browser = chromium

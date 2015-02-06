@@ -14,3 +14,19 @@ symlinks:
 	-ln -s ~/dotfiles/Xdefaults ~/.Xdefaults
 	-ln -s ~/dotfiles/Xsession ~/.Xsession
 	-ln -s ~/dotfiles/base16-shell ~/.base16-shell
+
+substrees_init:
+	-git remote add -f base16-xresources "https://github.com/chriskempson/base16-xresources"
+	-git subtree add --prefix base16-xresources base16-xresources master --squash
+	-git remote add -f base16-shell "https://github.com/chriskempson/base16-shell"
+	-git subtree add --prefix base16-shell base16-shell master --squash
+	-git remote add -f tmux-copycat "https://github.com/tmux-plugins/tmux-copycat"
+	-git subtree add --prefix .tmux/plugins/tmux-copycat tmux-copycat master --squash
+	-git remote add -f tpm "https://github.com/tmux-plugins/tpm"
+	-git subtree add --prefix .tmux/plugins/tpm tpm master --squash
+
+substrees_update:
+	-git fetch base16-xresources master
+	-git fetch base16-shell master
+	-git fetch tmux-copycat master
+	-git fetch tpm master

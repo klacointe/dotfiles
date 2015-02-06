@@ -1,0 +1,16 @@
+symlinks:
+	-ln -s ~/dotfiles/profile ~/.profile
+	-ln -s ~/dotfiles/zsh ~/.zsh 
+	-ln -s ~/.zsh/zshrc ~/.zshrc
+	-ln -s ~/dotfiles/vim ~/.vim
+	-ln -s ~/.vim/vimrc ~/.vimrc
+	-ln -s ~/dotfiles/gitconfig ~/.gitconfig
+	-ln -s ~/dotfiles/gemrc ~/.gemrc 
+	-ln -s ~/dotfiles/bashrc ~/.bashrc
+	-mkdir -p ~/.config
+	-ln -s ~/dotfiles/awesome ~/.config/awesome
+	-ln -s ~/dotfiles/tmux ~/.tmux
+	-ln -s ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
+	-ln -s ~/dotfiles/Xdefaults ~/.Xdefaults
+	-ln -s ~/dotfiles/Xsession ~/.Xsession
+	-ln -s ~/dotfiles/base16-shell ~/.base16-shell

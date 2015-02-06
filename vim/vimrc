@@ -112,7 +112,7 @@ set pastetoggle=<F10>
 set ruler
 set nu
 set scrolloff=3
-set shiftwidth=0
+"set shiftwidth=0
 set shortmess=atI
 set showcmd
 set showmatch

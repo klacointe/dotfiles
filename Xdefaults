@@ -1,0 +1,48 @@
+! xrdb -load ~/.Xdefaults
+
+! urxvt & aterm
+*scrollBar:false
+*transparent:false
+*imLocale:fr_FR.UTF8
+*saveLines:5000
+
+! Perl extensions for uxxvt
+URxvt.perl-ext: default,matcher,selection-autotransform
+URxvt.matcher.button: 1
+URxvt.urlLauncher: x-www-browser
+URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
+URxvt.selection-autotransform.0: s/^([^:[:space:]]+):(\\d+):?$/+$2 \\Q$1\\E/
+
+! Colors
+! 0=noir, 1=rouge, 2=vert, 3=jaune, 4=bleu, 5=magenta, 6=cyan, 7=blanc
+! 0-7 pour les couleurs foncées
+! 8-15 pour les couleurs claires
+
+! Base16 Default
+! Scheme: Chris Kempson (http://chriskempson.com)
+! https://github.com/chriskempson/base16-xresources
+#include "dotfiles/base16-xresources/base16-default.dark.256.xresources"
+
+! Font
+display*font: fixed
+*font: xft:Droid Sans Mono for Powerline:pixelsize=12
+
+URxvt.keysym.M-C-KP_0: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=12\007
+URxvt.keysym.M-C-KP_1: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=14\007
+URxvt.keysym.M-C-KP_2: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=16\007
+URxvt.keysym.M-C-KP_3: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=20\007
+URxvt.keysym.M-C-KP_4: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=24\007
+URxvt.keysym.M-C-KP_5: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=32\007
+URxvt.keysym.M-C-KP_6: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=48\007
+
+
+URxvt.letterSpace: -1
+
+! Xft
+Xft.autohint: 0
+Xft.antialias: 1
+Xft.hinting: true
+Xft.hintstyle: hintmedium
+Xft.dpi: 96
+Xft.rgba: rgb
+Xft.lcdfilter: lcddefault

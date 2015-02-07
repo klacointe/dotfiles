@@ -15,8 +15,8 @@ aptitude install make git zsh tmux \
 
 ```bash
 make symlinks
-make subtrees_init
-make subtrees_update
+make install
+make update
 ```
 
 ```bash

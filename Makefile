@@ -15,7 +15,7 @@ symlinks:
 	-ln -s ~/dotfiles/Xsession ~/.Xsession
 	-ln -s ~/dotfiles/base16-shell ~/.base16-shell
 
-substrees_init:
+install:
 	-git remote add -f base16-xresources "https://github.com/chriskempson/base16-xresources"
 	-git subtree add --prefix base16-xresources base16-xresources master --squash
 	-git remote add -f base16-shell "https://github.com/chriskempson/base16-shell"
@@ -24,9 +24,12 @@ substrees_init:
 	-git subtree add --prefix .tmux/plugins/tmux-copycat tmux-copycat master --squash
 	-git remote add -f tpm "https://github.com/tmux-plugins/tpm"
 	-git subtree add --prefix .tmux/plugins/tpm tpm master --squash
+	-git remote add -f powerline-fonts "https://github.com/powerline/fonts"
+	-git subtree add --prefix fonts powerline-fonts master --squash && cd fonts && ./install.sh
 
-substrees_update:
+update:
 	-git fetch base16-xresources master
 	-git fetch base16-shell master
 	-git fetch tmux-copycat master
 	-git fetch tpm master
+	-git fetch powerline-fonts master && cd fonts && ./install.sh

@@ -35,11 +35,8 @@ eval "$(rbenv init -)"
 [[ -s /home/klacointe/.nvm/nvm.sh ]] && . /home/klacointe/.nvm/nvm.sh
 PATH=$PATH:./node_modules/.bin
 
-# Elixir
-export ELIXIRROOT=$HOME/src/elixir
-export ELIXIRDEVROOT=$HOME/dev/oss/elixir
-export PATH=$PATH:$ELIXIRDEVROOT/bin
-export PATH=$PATH:$ELIXIRROOT/bin
+# Elixir (kiex)
+test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 
 # GVM
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"

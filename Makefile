@@ -1,4 +1,4 @@
-install: install_debs symlinks init_subtrees install_rbenv install_nvm install_gvm
+install: install_debs symlinks init_subtrees install_ruby install_node install_go
 
 install_debs:
 	-sudo apt-get update
@@ -47,16 +47,22 @@ update_subtrees:
 	-git fetch tpm master
 	-git fetch powerline-fonts master && cd fonts && ./install.sh
 
-install_rbenv:
+install_ruby:
 	-if [ ! -d ~/.rbenv ]; then git clone https://github.com/sstephenson/rbenv ~/.rbenv; fi
 	-if [ ! -d ~/.rbenv/plugins/ruby-build ]; then git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build; fi
 	-if [ ! -d ~/.rbenv/plugins/rbenv-gem-rehash ]; then git clone https://github.com/sstephenson/rbenv-gem-rehash ~/.rbenv/plugins/rbenv-gem-rehash; fi
 
-install_nvm:
+install_node:
 	-if [ ! -d ~/.nvm ]; then git clone https://github.com/creationix/nvm.git ~/.nvm && cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`; fi
 
-install_gvm:
+install_go:
 	-if [ ! -d ~/.gvm ]; then bin/install_gvm; fi
+
+install_erlang:
+	-if [ ! -f /etc/apt/sources.list.d/erlang.list ]; then echo "deb http://packages.erlang-solutions.com/debian wheezy contrib" | sudo tee -a /etc/apt/sources.list.d/erlang.list; fi
+	-wget http://packages.erlang-solutions.com/debian/erlang_solutions.asc && sudo apt-key add erlang_solutions.asc && rm erlang_solutions.asc
+	-sudo aptitude update && sudo aptitude install erlang
+	-if [ ! -d ~/.kiex ]; then curl -sSL https://raw.githubusercontent.com/taylor/kiex/master/install | bash -s; fi
 
 # Only needed for outdated git versions
 install_git_subtree:

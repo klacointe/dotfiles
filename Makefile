@@ -1,7 +1,14 @@
 install: install_debs symlinks init_subtrees install_rbenv install_nvm install_gvm
 
 install_debs:
-	-sudo aptitude install -y sudo make curl git zsh tmux tig mercurial binutils bison gcc build-essential ttf-mscorefonts-installer fonts-inconsolata ncmpcpp
+	-sudo apt-get update
+	-sudo apt-get install -y sudo make curl git zsh tmux tig mercurial \
+		binutils bison gcc build-essential rxvt-unicode-256color \
+		tree aptitude chromium-browser \
+		ttf-mscorefonts-installer fonts-inconsolata ncmpcpp xchat \
+		imagemagick libimage-exiftool-perl libreadline6-dev libssl-dev \
+		libxml2-dev libxslt-dev nginx openssl libmysql++-dev mongodb-server \
+		redis-server
 
 symlinks:
 	-ln -snf ~/dotfiles/profile ~/.profile

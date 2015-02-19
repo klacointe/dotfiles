@@ -106,7 +106,7 @@ set nojoinspaces
 set nospell
 set nostartofline
 set nowrap
-set nowrapscan
+set wrapscan
 set nrformats-=octal
 set pastetoggle=<F10>
 set ruler
@@ -205,6 +205,9 @@ let javascript_space_errors = 1
 " Comments
 vmap / :s#^#//\ #<CR>gv:s#^//\ //\ ##<CR>
 vmap # :s/^/#\ /<CR>gv:s/^#\ #\ //<CR>
+
+" 2 spaces indentation for coffeescript.
+autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 
 " SudoW command to save a file as root
 command! -bar -nargs=0 SudoW   :silent exe "write !sudo tee % >/dev/null"|silent edit!

@@ -41,6 +41,9 @@ test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 # GVM
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 
+# io.js
+PATH=$PATH:~/src/iojs/bin
+
 #### Permissions rw-r--r-- pour les fichiers crées
 #### et rwxr-xr-x pour les répertoires crées
 umask 022

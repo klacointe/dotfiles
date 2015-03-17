@@ -206,8 +206,11 @@ let javascript_space_errors = 1
 vmap / :s#^#//\ #<CR>gv:s#^//\ //\ ##<CR>
 vmap # :s/^/#\ /<CR>gv:s/^#\ #\ //<CR>
 
-" 2 spaces indentation for coffeescript.
+" 2 spaces indentation for coffeescript and css.
 autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.css setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.scss setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.sass setl shiftwidth=2 expandtab
 
 " SudoW command to save a file as root
 command! -bar -nargs=0 SudoW   :silent exe "write !sudo tee % >/dev/null"|silent edit!

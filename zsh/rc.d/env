@@ -32,7 +32,7 @@ PATH=$PATH:~/.rbenv/bin
 eval "$(rbenv init -)"
 
 ### nvm
-[[ -s /home/klacointe/.nvm/nvm.sh ]] && . /home/klacointe/.nvm/nvm.sh
+[[ -s "$HOME/.nvm/nvm.sh" ]] && . "$HOME/.nvm/nvm.sh"
 PATH=$PATH:./node_modules/.bin
 
 # Elixir (kiex)
@@ -43,6 +43,9 @@ test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 
 # io.js
 PATH=$PATH:~/src/iojs/bin
+
+# nwjs
+PATH=$PATH:~/src/nwjs
 
 #### Permissions rw-r--r-- pour les fichiers crées
 #### et rwxr-xr-x pour les répertoires crées

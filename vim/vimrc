@@ -105,7 +105,7 @@ set noignorecase
 set nojoinspaces
 set nospell
 set nostartofline
-set nowrap
+set wrap
 set wrapscan
 set nrformats-=octal
 set pastetoggle=<F10>

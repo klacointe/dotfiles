@@ -28,8 +28,9 @@ PATH=$PATH:~/opt/phantomjs-1.7.0-linux-x86_64/bin
 PATH=$PATH:/opt/vagrant/bin
 
 ### Rbenv
-PATH=$PATH:~/.rbenv/bin
-eval "$(rbenv init -)"
+[[ -s "$HOME/.nvm/nvm.sh" ]] && \
+	PATH=$PATH:~/.rbenv/bin && \
+	eval "$(rbenv init -)"
 
 ### nvm
 [[ -s "$HOME/.nvm/nvm.sh" ]] && . "$HOME/.nvm/nvm.sh"

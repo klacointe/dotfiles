@@ -1,7 +1,7 @@
 gnome-settings-daemon &      # handles themes, starts gnome-screensaver. You may have to use gconf to disable it setting the background.
 nm-applet &                  # assuming you're using Network Manager
 gnome-power-manager &        # for laptops and stuff
-gnome-volume-manager &       # for mounting CDs, USB sticks, and such
+#gnome-volume-manager &       # for mounting CDs, USB sticks, and such
 #redshift-gtk -l 48.48:2.20 &
 xflux -l 47.2494910 -q -1.4873310
 clipit &
@@ -9,4 +9,3 @@ eval `gnome-keyring-daemon`  # SSH/GPG agent
 xset s 0 0
 xset s off
 exec awesome                 # awesome receives xinit's process id; when it terminates, X will be terminated
-

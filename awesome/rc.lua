@@ -10,8 +10,9 @@ local beautiful = require("beautiful")
 -- Notification library
 local naughty = require("naughty")
 local menubar = require("menubar")
--- Vicious widgets
+-- Widgets
 local vicious = require("vicious")
+local net_widgets = require("widgets/net_widgets")
 
 -- Load Debian menu entries
 require("debian.menu")
@@ -115,10 +116,8 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 -- }}}
 
 -- {{{ Memory usage graph
-memgraph = awful.widget.progressbar()
-memgraph:set_width(8)
-memgraph:set_height(10)
-memgraph:set_vertical(true)
+memgraph = awful.widget.graph()
+memgraph:set_width(50)
 memgraph:set_background_color("#494B4F")
 memgraph:set_border_color(nil)
 memgraph:set_color(
@@ -141,43 +140,47 @@ local cpuwidget = wibox.layout.margin(cpuwidget,1,1,0,0)
 
 -- {{{ Thermal widget
 temp = wibox.widget.textbox()
-vicious.register(temp, vicious.widgets.thermal, "<span color='#d7e0ea'>$1°</span>",37,"thermal_zone0")
+vicious.register(temp, vicious.widgets.thermal, "$1°",37,"thermal_zone0")
 local tempwidget = wibox.layout.margin(temp,1,1,0,0)
 -- }}}
 
 -- {{{ HDD Thermal widget
 hddtemp = wibox.widget.textbox()
-vicious.register(hddtemp, vicious.widgets.hddtemp, "<span color='#d7e0ea'>$1°</span>",37,"thermal_zone0")
+vicious.register(hddtemp, vicious.widgets.hddtemp, "$1°",37,"thermal_zone0")
 local hddtempwidget = wibox.layout.margin(temp,1,1,0,0)
 -- }}}
 
--- {{{ Eth0 download
+-- {{{ Eth
+net_wired = net_widgets.indicator({
+	interfaces  = {"eth0"},
+	timeout     = 5
+})
+
 ethdown = wibox.widget.textbox()
-vicious.register(ethdown, vicious.widgets.net, "<span color='#d7e0ea'>eth ▼${eth0 down_kb}</span>", 1)
+vicious.register(ethdown, vicious.widgets.net, "▼${eth0 down_kb}", 1)
 local ethdownwidget = wibox.layout.margin(ethdown,1,1,0,0)
--- }}}
 
--- {{{ Eth0 upload
 ethup = wibox.widget.textbox()
-vicious.register(ethup, vicious.widgets.net, "<span color='#d7e0ea'>▲${eth0 up_kb}</span>", 1)
-local ethupwidget = wibox.layout.margin(ethup,1,1,0,0)
+vicious.register(ethup, vicious.widgets.net, "▲${eth0 up_kb}", 1)
+local ethupwidget = wibox.layout.margin(ethup,1,10,0,0)
+
 -- }}}
 
--- {{{ wlan0 download
+-- {{{ wlan
 wlandown = wibox.widget.textbox()
-vicious.register(wlandown, vicious.widgets.net, "<span color='#d7e0ea'>wlan ▼${wlan0 down_kb}</span>", 1)
+vicious.register(wlandown, vicious.widgets.net, "▼${wlan0 down_kb}", 1)
 local wlandownwidget = wibox.layout.margin(wlandown,1,1,0,0)
--- }}}
 
--- {{{ wlan0 upload
 wlanup = wibox.widget.textbox()
-vicious.register(wlanup, vicious.widgets.net, "<span color='#d7e0ea'>▲${wlan0 up_kb}</span>", 1)
-local wlanupwidget = wibox.layout.margin(wlanup,1,1,0,0)
+vicious.register(wlanup, vicious.widgets.net, "▲${wlan0 up_kb}", 1)
+local wlanupwidget = wibox.layout.margin(wlanup,1,10,0,0)
+
+net_wireless = net_widgets.wireless({interface="wlan0"})
 -- }}}
 
 -- {{{ Date widget
 datewidget = wibox.widget.textbox()
-vicious.register(datewidget, vicious.widgets.date, " %d %b %R", 60)
+vicious.register(datewidget, vicious.widgets.date, " %d%b %R", 60)
 -- }}}
 
 -- {{{ Battery graph
@@ -191,7 +194,13 @@ batwidget:set_color(
 	{ type = "linear", from = { 1, 0 }, to = { 0, 10 },	stops = { { 0, "#AECF96" }, { 0.5, "#88A175" }, { 1, "#FF5656" }}}
 )
 vicious.register(batwidget, vicious.widgets.bat, "$2", 61, "BAT0")
-local batwidget = wibox.layout.margin(batwidget,1,1,0,0)
+local batwidget = wibox.layout.margin(batwidget,10,1,0,0)
+-- }}}
+
+-- {{{ Battery percent
+batpercent = wibox.widget.textbox()
+vicious.register(batpercent, vicious.widgets.bat, "$2%", 61, "BAT0")
+local batpercentwidget = wibox.layout.margin(batpercent,1,1,0,0)
 -- }}}
 
 -- {{{ Wibox
@@ -278,14 +287,17 @@ for s = 1, screen.count() do
     local right_layout = wibox.layout.fixed.horizontal()
 	if (screen.count() == 2) and (s == 2) then right_layout:add(wibox.widget.systray()) end
 	if (screen.count() == 1) and (s == 1) then right_layout:add(wibox.widget.systray()) end
+    right_layout:add(net_wired)
     right_layout:add(ethdownwidget)
     right_layout:add(ethupwidget)
+    right_layout:add(net_wireless)
     right_layout:add(wlandownwidget)
     right_layout:add(wlanupwidget)
     right_layout:add(cpuwidget)
     right_layout:add(memwidget)
-	right_layout:add(batwidget)
     right_layout:add(tempwidget)
+	right_layout:add(batwidget)
+	right_layout:add(batpercentwidget)
 	right_layout:add(datewidget)
 	--right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])

@@ -9,6 +9,7 @@ Plug 'Raimondi/delimitMate'
 Plug 'scrooloose/nerdcommenter'
 Plug 'tpope/vim-fugitive'
 Plug 'vasconcelloslf/vim-interestingwords'
+Plug 'godlygeek/tabular'
 " Filetype
 Plug 'tpope/vim-bundler', { 'for': 'ruby' }
 Plug 'tpope/vim-rails', { 'for': 'ruby' }
@@ -26,6 +27,8 @@ Plug 'fatih/vim-go', { 'for': 'go' }
 Plug 'evanmiller/nginx-vim-syntax', { 'for': 'nginx' }
 Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': 'pandoc' }
 Plug 'wavded/vim-stylus', { 'for': 'styl' }
+Plug 'groenewege/vim-less', { 'for': 'less' }
+Plug 'klen/python-mode', { 'for': 'python' }
 " Colors
 Plug 'altercation/vim-colors-solarized'
 Plug 'chriskempson/base16-vim'
@@ -209,6 +212,7 @@ vmap # :s/^/#\ /<CR>gv:s/^#\ #\ //<CR>
 " 2 spaces indentation for coffeescript and css.
 autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.css setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.less setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.scss setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.sass setl shiftwidth=2 expandtab
 

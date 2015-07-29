@@ -322,21 +322,21 @@ for s = 1, screen.count() do
 	if (screen.count() == 2) and (s == 2) then right_layout:add(wibox.widget.systray()) end
 	if (screen.count() == 1) and (s == 1) then right_layout:add(wibox.widget.systray()) end
     right_layout:add(net_wired)
-    right_layout:add(ethdownwidget)
-    right_layout:add(ethupwidget)
-    right_layout:add(net_wireless)
-    right_layout:add(wlandownwidget)
-    right_layout:add(wlanupwidget)
-	for i=1,4 do
-		right_layout:add(cores_graphs[i])
-	end
+    --right_layout:add(ethdownwidget)
+    --right_layout:add(ethupwidget)
+	right_layout:add(net_wireless)
+    --right_layout:add(wlandownwidget)
+    --right_layout:add(wlanupwidget)
+	--for i=1,4 do
+		--right_layout:add(cores_graphs[i])
+	--end
 	--for i=1,4 do
 		--right_layout:add(cores_text[i])
 	--end
-    right_layout:add(cpu_graph)
+	right_layout:add(cpu_graph)
     right_layout:add(mem_graph)
-    --right_layout:add(cpuwidget)
-    --right_layout:add(memwidget)
+	--right_layout:add(cpuwidget)
+	--right_layout:add(memwidget)
     right_layout:add(tempwidget)
 	right_layout:add(bat_graph)
 	right_layout:add(batpercentwidget)

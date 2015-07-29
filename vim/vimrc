@@ -29,6 +29,7 @@ Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': 'pandoc' }
 Plug 'wavded/vim-stylus', { 'for': 'styl' }
 Plug 'groenewege/vim-less', { 'for': 'less' }
 Plug 'klen/python-mode', { 'for': 'python' }
+Plug 'mustache/vim-mustache-handlebars', { 'for': 'mustache' }
 " Colors
 Plug 'altercation/vim-colors-solarized'
 Plug 'chriskempson/base16-vim'

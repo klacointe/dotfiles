@@ -4,7 +4,8 @@
 
 theme = {}
 
-theme.font          = "Droid Sans Mono for Powerline 9"
+--theme.font          = "Droid Sans Mono for Powerline 9"
+theme.font          = "Inconsolata for Powerline 9"
 
 theme.bg_normal     = "#282828"
 theme.bg_focus      = "#535d6c"

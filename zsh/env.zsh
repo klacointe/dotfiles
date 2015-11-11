@@ -28,7 +28,7 @@ PATH=$PATH:~/opt/phantomjs-1.7.0-linux-x86_64/bin
 PATH=$PATH:/opt/vagrant/bin
 
 ### Rbenv
-[[ -s "$HOME/.nvm/nvm.sh" ]] && \
+[[ -d "$HOME/.rbenv" ]] && \
   PATH=$PATH:~/.rbenv/bin && \
   eval "$(rbenv init -)"
 
@@ -55,9 +55,10 @@ test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 PATH=$PATH:~/src/nwjs
 
 # Pyenv
-PYENV_ROOT="$HOME/.pyenv"
-PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+[[ -s "$HOME/.pyenv" ]] && \
+	PYENV_ROOT="$HOME/.pyenv" && \
+	PATH="$PYENV_ROOT/bin:$PATH" && \
+	eval "$(pyenv init -)"
 
 #### Permissions rw-r--r-- pour les fichiers crées
 #### et rwxr-xr-x pour les répertoires crées

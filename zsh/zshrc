@@ -1,10 +1,22 @@
 #!/bin/zsh
-for file in $HOME/.zsh/rc.d/*; do
-    source $file
-done
 
-setopt prompt_subst
-PROMPT='%n@%m %c${vcs_info_msg_0_} %% %{$reset_color%}'
+source ~/.zsh/env.zsh
+source ~/.zsh/alias.zsh
+
+# Antigen
+source ~/.zsh/antigen.zsh
+antigen use oh-my-zsh
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle git
+antigen bundle git-prompt
+antigen bundle golang
+antigen bundle bundler
+antigen bundle rbenv
+antigen bundle tmux
+antigen bundle bower
+antigen bundle docker
+antigen bundle emoji
+antigen apply
 
 # Base16 Shell
 BASE16_SHELL="$HOME/base16-shell/base16-default.dark.sh"

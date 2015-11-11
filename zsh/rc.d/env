@@ -44,7 +44,13 @@ test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 [[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
 
 # io.js
-PATH=$PATH:~/src/iojs/bin
+#PATH=$PATH:~/src/iojs/bin
+
+# The next line updates PATH for the Google Cloud SDK.
+#source '/home/klacointe/google-cloud-sdk/path.zsh.inc'
+
+# The next line enables shell command completion for gcloud.
+#source '/home/klacointe/google-cloud-sdk/completion.zsh.inc'
 
 # nwjs
 PATH=$PATH:~/src/nwjs
@@ -63,6 +69,13 @@ PATH=$PATH:~/gsutil
 
 # Android SDK
 PATH=$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools
+
+# Bento
+PATH=$PATH:~/src/Bento4-SDK-1-4-3-597.x86_64-unknown-linux/bin
+
+# Oracle instant client
+export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:$LD_LIBRARY_PATH
+export PATH=/opt/oracle/instantclient_12_1:$PATH
 
 #### Les couleurs
 if [[ -x `which dircolors` ]]; then

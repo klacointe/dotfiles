@@ -12,7 +12,6 @@ antigen bundle git-prompt
 antigen bundle golang
 antigen bundle bundler
 antigen bundle rbenv
-antigen bundle tmux
 antigen bundle bower
 antigen bundle docker
 antigen bundle emoji

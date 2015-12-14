@@ -1,4 +1,4 @@
-install: install_debs symlinks init_subtrees install_ruby install_node install_go
+install: install_debs init_subtrees symlinks install_ruby install_node install_go
 
 install_debs:
 	-sudo apt-get update

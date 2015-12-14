@@ -26,4 +26,4 @@ export BROWSER=chromium
 
 # Pass this flasg to chromium in /etc/chromium/default :
 # CHROMIUM_FLAGS="--password-store=detect --ppapi-flash-path=/opt/google/chrome/PepperFlash/libpepflashplayer.so --ppapi-flash-version=$PEPPER_FLASH_VERSION"
-export PEPPER_FLASH_VERSION=$(grep '"version":' /opt/google/chrome-unstable/PepperFlash/manifest.json| grep -Po '(?<=version": ")(?:\d|\.)*')
+#export PEPPER_FLASH_VERSION=$(grep '"version":' /opt/google/chrome-unstable/PepperFlash/manifest.json| grep -Po '(?<=version": ")(?:\d|\.)*')

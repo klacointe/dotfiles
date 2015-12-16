@@ -1,5 +1,6 @@
 #!/bin/zsh
 
+source .Xsession
 source ~/.zsh/env.zsh
 source ~/.zsh/alias.zsh
 

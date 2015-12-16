@@ -232,9 +232,9 @@ local batpercentwidget = wibox.layout.margin(batpercent,1,1,0,0)
 --volumewidget:update_master()
 --volumewidget:set_master_control()
 --volumewidget:set_bar(true)
-volumewidget = blingbling.volume({height = 18, width = 40, bar =true, show_text = true, label =""})
-volumewidget:update_master()
-volumewidget:set_master_control()
+--volumewidget = blingbling.volume({height = 18, width = 40, bar =true, show_text = true, label =""})
+--volumewidget:update_master()
+--volumewidget:set_master_control()
 -- }}}
 
 -- {{{ Wibox
@@ -340,7 +340,7 @@ for s = 1, screen.count() do
     right_layout:add(tempwidget)
 	right_layout:add(bat_graph)
 	right_layout:add(batpercentwidget)
-	right_layout:add(volumewidget)
+	--right_layout:add(volumewidget)
 	right_layout:add(datewidget)
 	--right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
@@ -733,7 +733,27 @@ client.connect_signal("focus", function(c) c.border_color = beautiful.border_foc
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
 -- }}}
 
+function run_once(prg,arg_string,pname,screen)
+	if not prg then
+		do return nil end
+	end
+
+	if not pname then
+		pname = prg
+	end
+
+	if not arg_string then
+		awful.util.spawn_with_shell("pgrep -f -u $USER -x '" .. pname .. "' || (" .. prg .. ")",screen)
+	else
+		awful.util.spawn_with_shell("pgrep -f -u $USER -x '" .. pname .. " ".. arg_string .."' || (" .. prg .. " " .. arg_string .. ")",screen)
+	end
+end
+
 -- {{{ Autostart
-awful.util.spawn_with_shell("xset -b")
-awful.util.spawn_with_shell("xrdb -load ~/.Xdefaults")
+awful.util.spawn_with_shell("source ~/.Xsession")
+awful.util.spawn_with_shell("eval `gnome-keyring-daemon`")
+run_once("gnome-settings-daemon")
+run_once("clipit")
+run_once("nm-applet")
+--xflux -l 47.2494910 -q -1.4873310 &
 -- }}}

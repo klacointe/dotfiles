@@ -38,7 +38,8 @@ init_subtrees:
 	-git remote show tpm || git remote add -f tpm "https://github.com/tmux-plugins/tpm"
 	-git subtree add --prefix tmux/plugins/tpm tpm master --squash
 	-git remote show powerline-fonts || git remote add -f powerline-fonts "https://github.com/powerline/fonts"
-	-git subtree add --prefix fonts powerline-fonts master --squash && cd fonts && ./install.sh
+	-git subtree add --prefix fonts powerline-fonts master --squash
+	-cd fonts && ./install.sh
 
 update_subtrees:
 	-git fetch base16-xresources master

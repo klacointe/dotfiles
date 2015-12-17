@@ -1,6 +1,7 @@
 #!/bin/zsh
 
-source .Xsession
+source ~/.Xsession
+source ~/.zsh/colors.zsh
 source ~/.zsh/env.zsh
 source ~/.zsh/alias.zsh
 
@@ -17,7 +18,3 @@ antigen bundle bower
 antigen bundle docker
 antigen bundle emoji
 antigen apply
-
-# Base16 Shell
-BASE16_SHELL="$HOME/.base16-shell/base16-default.dark.sh"
-[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL

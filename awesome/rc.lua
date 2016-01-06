@@ -13,6 +13,7 @@ local menubar = require("menubar")
 -- Widgets
 local vicious = require("vicious")
 local net_widgets = require("widgets/net_widgets")
+require("volume")
 
 -- Load Debian menu entries
 require("debian.menu")
@@ -236,6 +237,10 @@ local batpercentwidget = wibox.layout.margin(batpercent,1,1,0,0)
 --volumewidget:update_master()
 --volumewidget:set_master_control()
 -- }}}
+--
+-- {{{ Volume pulseausio
+volume_widget = create_volume_widget()
+-- }}}
 
 -- {{{ Wibox
 -- Create a textclock widget
@@ -341,6 +346,7 @@ for s = 1, screen.count() do
 	right_layout:add(bat_graph)
 	right_layout:add(batpercentwidget)
 	--right_layout:add(volumewidget)
+	right_layout:add(volume_widget)
 	right_layout:add(datewidget)
 	--right_layout:add(mytextclock)
     right_layout:add(mylayoutbox[s])
@@ -553,9 +559,12 @@ globalkeys = awful.util.table.join(
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end),
 	-- Volume
-	awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer -q sset Master 10%-") end),
-	awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer -q sset Master 10%+") end),
-	awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer sset Master toggle") end),
+	--awful.key({ }, "XF86AudioLowerVolume", function () awful.util.spawn("amixer -q sset Master 10%-") end),
+	--awful.key({ }, "XF86AudioRaiseVolume", function () awful.util.spawn("amixer -q sset Master 10%+") end),
+	--awful.key({ }, "XF86AudioMute", function () awful.util.spawn("amixer -q -D default sset Master toggle") end),
+	awful.key({ }, "XF86AudioRaiseVolume", function () inc_volume(volume_widget) end),
+	awful.key({ }, "XF86AudioLowerVolume", function () dec_volume(volume_widget) end),
+	awful.key({ }, "XF86AudioMute", function() mute_volume(volume_widget) end),
 	-- Screens
 	awful.key({}, "XF86Display", xrandr)
 )

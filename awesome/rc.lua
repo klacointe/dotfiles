@@ -764,5 +764,6 @@ awful.util.spawn_with_shell("eval `gnome-keyring-daemon`")
 run_once("gnome-settings-daemon")
 run_once("clipit")
 run_once("nm-applet")
+run_once("xflux -l 47.2494910 -q -1.4873310")
 --xflux -l 47.2494910 -q -1.4873310 &
 -- }}}

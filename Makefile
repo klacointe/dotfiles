@@ -12,12 +12,13 @@ install_debs:
 
 symlinks:
 	-ln -snf ~/dotfiles/profile ~/.profile
-	-ln -snf ~/dotfiles/zsh ~/.zsh 
+	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
 	-ln -snf ~/dotfiles/vim ~/.vim
 	-ln -snf ~/.vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
-	-ln -snf ~/dotfiles/gemrc ~/.gemrc 
+	-ln -snf ~/dotfiles/irbrc ~/.irbrc
+	-ln -snf ~/dotfiles/gemrc ~/.gemrc
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-mkdir -p ~/.config
 	-ln -snf ~/dotfiles/awesome ~/.config/awesome

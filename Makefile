@@ -1,11 +1,11 @@
-install: install_debs init_subtrees symlinks install_ruby install_node install_go
+install: install_debs init_subtrees symlinks install_ruby install_node install_go install_crystal
 
 install_debs:
 	-sudo apt-get update
 	-sudo apt-get install -y sudo make curl git zsh tmux tig mercurial \
 		binutils bison gcc build-essential rxvt-unicode-256color \
-		tree aptitude chromium-browser \
-		ttf-mscorefonts-installer fonts-inconsolata ncmpcpp xchat \
+		tree aptitude \
+		ttf-mscorefonts-installer fonts-inconsolata ncmpcpp hexchat \
 		imagemagick libimage-exiftool-perl libreadline6-dev libssl-dev \
 		libxml2-dev libxslt-dev nginx openssl libmysql++-dev mongodb-server \
 		redis-server
@@ -53,6 +53,9 @@ install_ruby:
 	-if [ ! -d ~/.rbenv ]; then git clone https://github.com/sstephenson/rbenv ~/.rbenv; fi
 	-if [ ! -d ~/.rbenv/plugins/ruby-build ]; then git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build; fi
 	-if [ ! -d ~/.rbenv/plugins/rbenv-gem-rehash ]; then git clone https://github.com/sstephenson/rbenv-gem-rehash ~/.rbenv/plugins/rbenv-gem-rehash; fi
+
+install_crystal:
+	-if [ ! -d ~/.crenv ]; then curl -L https://raw.github.com/pine/crenv/master/install.sh | bash; fi
 
 install_node:
 	-if [ ! -d ~/.nvm ]; then git clone https://github.com/creationix/nvm.git ~/.nvm && cd ~/.nvm && git checkout `git describe --abbrev=0 --tags`; fi

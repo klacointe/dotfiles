@@ -76,3 +76,7 @@ PATH=$PATH:~/src/Bento4-SDK-1-4-3-597.x86_64-unknown-linux/bin
 # Oracle instant client
 export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:$LD_LIBRARY_PATH
 export PATH=/opt/oracle/instantclient_12_1:$PATH
+
+# Crenv (crystal)
+export PATH="$HOME/.crenv/bin:$PATH"
+eval "$(crenv init -)"

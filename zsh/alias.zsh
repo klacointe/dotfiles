@@ -26,3 +26,8 @@ alias vpnftv="jnc -l 0 -n jaguar"
 
 alias gourmand="du --max-depth=1 . | sort -n -r"
 
+alias freeboxtv="vlc --avcodec-hw=vaapi http://mafreebox.freebox.fr/freeboxtv/playlist.m3u &"
+
+alias caps_lock="xdotool key Caps_Lock"
+
+alias json_view="python -m json.tool"

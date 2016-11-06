@@ -33,6 +33,7 @@ Plug 'klen/python-mode', { 'for': 'python' }
 Plug 'mustache/vim-mustache-handlebars', { 'for': 'mustache' }
 Plug 'slim-template/vim-slim', { 'for': 'slim' }
 Plug 'rhysd/vim-crystal', { 'for': 'crystal' }
+Plug 'smerrill/vcl-vim-plugin', { 'for': 'vcl' }
 " Colors
 Plug 'altercation/vim-colors-solarized'
 Plug 'chriskempson/base16-vim'

@@ -179,9 +179,9 @@ local tempwidget = wibox.layout.margin(temp,1,1,0,0)
 -- }}}
 
 -- {{{ HDD Thermal widget
-hddtemp = wibox.widget.textbox()
-vicious.register(hddtemp, vicious.widgets.hddtemp, "$1°",37,"thermal_zone0")
-local hddtempwidget = wibox.layout.margin(temp,1,1,0,0)
+--hddtemp = wibox.widget.textbox()
+--vicious.register(hddtemp, vicious.widgets.hddtemp, "$1°",37,"thermal_zone0")
+--local hddtempwidget = wibox.layout.margin(hddtemp,1,1,0,0)
 -- }}}
 
 -- {{{ Eth
@@ -218,12 +218,19 @@ vicious.register(datewidget, vicious.widgets.date, " %d%b %R", 60)
 -- }}}
 
 -- {{{ Battery
-bat_graph = blingbling.progress_graph.new({height = 20, width = 10})
-vicious.register(bat_graph, vicious.widgets.bat, "$2", 61, "BAT0")
+bat_graph_0 = blingbling.progress_graph.new({height = 20, width = 10})
+vicious.register(bat_graph_0, vicious.widgets.bat, "$2", 61, "BAT0")
 
-batpercent = wibox.widget.textbox()
-vicious.register(batpercent, vicious.widgets.bat, "$2%", 61, "BAT0")
-local batpercentwidget = wibox.layout.margin(batpercent,1,1,0,0)
+bat_graph_1 = blingbling.progress_graph.new({height = 20, width = 10})
+vicious.register(bat_graph_1, vicious.widgets.bat, "$2", 61, "BAT1")
+
+batpercent_0 = wibox.widget.textbox()
+vicious.register(batpercent_0, vicious.widgets.bat, "BAT0 $2%", 61, "BAT0")
+local batpercentwidget_0 = wibox.layout.margin(batpercent_0,1,1,0,0)
+
+batpercent_1 = wibox.widget.textbox()
+vicious.register(batpercent_1, vicious.widgets.bat, "BAT1 $2%", 61, "BAT1")
+local batpercentwidget_1 = wibox.layout.margin(batpercent_1,1,1,0,0)
 -- }}}
 --
 -- {{{ Volume
@@ -329,7 +336,7 @@ for s = 1, screen.count() do
     right_layout:add(net_wired)
     --right_layout:add(ethdownwidget)
     --right_layout:add(ethupwidget)
-	right_layout:add(net_wireless)
+    right_layout:add(net_wireless)
     --right_layout:add(wlandownwidget)
     --right_layout:add(wlanupwidget)
 	--for i=1,4 do
@@ -338,13 +345,16 @@ for s = 1, screen.count() do
 	--for i=1,4 do
 		--right_layout:add(cores_text[i])
 	--end
-	right_layout:add(cpu_graph)
+    right_layout:add(cpu_graph)
     right_layout:add(mem_graph)
 	--right_layout:add(cpuwidget)
 	--right_layout:add(memwidget)
     right_layout:add(tempwidget)
-	right_layout:add(bat_graph)
-	right_layout:add(batpercentwidget)
+    --right_layout:add(hddtempwidget)
+	right_layout:add(batpercentwidget_0)
+	right_layout:add(bat_graph_0)
+	right_layout:add(batpercentwidget_1)
+	right_layout:add(bat_graph_1)
 	--right_layout:add(volumewidget)
 	right_layout:add(volume_widget)
 	right_layout:add(datewidget)
@@ -764,6 +774,7 @@ awful.util.spawn_with_shell("eval `gnome-keyring-daemon`")
 run_once("gnome-settings-daemon")
 run_once("clipit")
 run_once("nm-applet")
+run_once("blueman-applet")
 run_once("xflux -l 47.2494910 -q -1.4873310")
 --xflux -l 47.2494910 -q -1.4873310 &
 -- }}}

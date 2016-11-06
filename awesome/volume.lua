@@ -13,7 +13,7 @@ local background_over_100_color = normal_color
 
 -- Functions to fetch volume information (pulseaudio)
 function get_volume() -- returns the volume as a float (1.0 = 100%)
-	local fd = io.popen("pactl list | grep -A 9001 'Sink #0' | grep Volume | head -n 1 | awk -F / '{print $2}' | sed 's/[^0-9]*//g'")
+	local fd = io.popen("pactl list | grep -A 9001 'Sink #1' | grep Volume | head -n 1 | awk -F / '{print $2}' | sed 's/[^0-9]*//g'")
 	local volume_str = fd:read("*all")
 	fd:close()
 	if volume_str == "" then
@@ -24,7 +24,7 @@ function get_volume() -- returns the volume as a float (1.0 = 100%)
 end
 
 function get_mute() -- returns a true value if muted or a false value if not
-	fd = io.popen("pactl list | grep -A 9001 'Sink #0' | grep Mute | head -n 1")
+	fd = io.popen("pactl list | grep -A 9001 'Sink #1' | grep Mute | head -n 1")
 	local mute_str = fd:read("*all")
 	fd:close()
 	return string.find(mute_str, "yes")
@@ -53,17 +53,17 @@ end
 
 -- Volume control functions for external use
 function inc_volume(widget)
-	awful.util.spawn("pactl set-sink-volume 0 +5%", false)
+	awful.util.spawn("pactl set-sink-volume 1 +5%", false)
 	update_volume(widget)
 end
 
 function dec_volume(widget)
-	awful.util.spawn("pactl set-sink-volume 0 -5%", false)
+	awful.util.spawn("pactl set-sink-volume 1 -5%", false)
 	update_volume(widget)
 end
 
 function mute_volume(widget)
-	awful.util.spawn("pactl set-sink-mute 0 toggle", false)
+	awful.util.spawn("pactl set-sink-mute 1 toggle", false)
 	update_volume(widget)
 end
 

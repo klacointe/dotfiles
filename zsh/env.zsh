@@ -39,8 +39,15 @@ PATH=$PATH:./node_modules/.bin
 # Elixir (kiex)
 test -s "$HOME/.kiex/scripts/kiex" && source "$HOME/.kiex/scripts/kiex"
 
+# Golang
+#
 # GVM
-[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+#[[ -s "$HOME/.gvm/scripts/gvm" ]] && source "$HOME/.gvm/scripts/gvm"
+#
+# Manual
+export GOROOT=$HOME/.go/go1.8
+export GOPATH=$HOME/.go/workspace
+export PATH=$PATH:$GOROOT/bin
 
 # io.js
 #PATH=$PATH:~/src/iojs/bin
@@ -74,8 +81,8 @@ PATH=$PATH:~/android-sdk-linux/tools:~/android-sdk-linux/platform-tools
 PATH=$PATH:~/src/Bento4-SDK-1-4-3-597.x86_64-unknown-linux/bin
 
 # Oracle instant client
-export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:$LD_LIBRARY_PATH
-export PATH=/opt/oracle/instantclient_12_1:$PATH
+#export LD_LIBRARY_PATH=/opt/oracle/instantclient_12_1:$LD_LIBRARY_PATH
+#export PATH=/opt/oracle/instantclient_12_1:$PATH
 
 # Crenv (crystal)
 export PATH="$HOME/.crenv/bin:$PATH"

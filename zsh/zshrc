@@ -18,8 +18,3 @@ antigen bundle bower
 antigen bundle docker
 antigen bundle emoji
 antigen apply
-
-export NVM_DIR="/home/klacointe/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"  # This loads nvm
-
-[[ -s "/home/klacointe/.gvm/scripts/gvm" ]] && source "/home/klacointe/.gvm/scripts/gvm"

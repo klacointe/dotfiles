@@ -17,4 +17,6 @@ antigen bundle rbenv
 antigen bundle bower
 antigen bundle docker
 antigen bundle emoji
+antigen bundle yarn
+antigen bundle debian
 antigen apply

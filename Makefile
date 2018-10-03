@@ -28,6 +28,7 @@ symlinks:
 	-ln -snf ~/dotfiles/Xsession ~/.Xsession
 	-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	-ln -snf ~/dotfiles/ncmpcpp ~/.ncmpcpp
+	-ln -snf ~/dotfiles/alacritty ~/.config/alacritty
 
 init_subtrees:
 	-git remote show base16-xresources || git remote add -f base16-xresources "https://github.com/chriskempson/base16-xresources"

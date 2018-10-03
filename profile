@@ -21,11 +21,11 @@ if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
 
-source .Xsession
+source ~/.Xsession
 ssh-add ~/.ssh/id_dsa > /dev/null
 
 ## Usefull for xdg-open
-export BROWSER=google-chrome-unstable
+export BROWSER=google-chrome
 #xdg-mime default chromium.desktop x-scheme-handler/http
 #xdg-mime default chromium.desktop x-scheme-handler/https
 

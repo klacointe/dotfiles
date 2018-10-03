@@ -46,7 +46,8 @@ beautiful.init("/home/klacointe/.config/awesome/themes/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 --terminal = "x-terminal-emulator"
-terminal = "urxvt"
+-- terminal = "urxvt"
+terminal = "alacritty"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -466,7 +467,10 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey }, "p", function() menubar.show() end,
               {description = "show the menubar", group = "launcher"}),
 	-- Screens
-	awful.key({}, "XF86Display", xrandr)
+	awful.key({}, "XF86Display", xrandr),
+
+	-- gnome-screensaver
+	awful.key({ }, "F12", function () awful.util.spawn("gnome-screensaver-command --lock") end)
 )
 
 clientkeys = awful.util.table.join(
@@ -706,4 +710,5 @@ run_once("clipit")
 run_once("nm-applet")
 run_once("blueman-applet")
 run_once("xflux -l 47.2494910 -q -1.4873310")
+run_once("gnome-screensaver")
 -- }}}

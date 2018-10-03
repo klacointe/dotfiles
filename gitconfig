@@ -27,6 +27,7 @@
   whitespace = trailing-space,space-before-tab
 [diff]
   renames = true
+  submodule = log
 [branch]
   autosetupmerge = true
   autosetuprebase = always
@@ -34,3 +35,5 @@
   default = tracking
 [web]
   browser = chromium
+[status]
+  submodulesummary = 1

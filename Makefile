@@ -25,6 +25,7 @@ symlinks:
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 	-ln -snf ~/dotfiles/Xdefaults ~/.Xdefaults
+	-ln -snf ~/dotfiles/setxkbmaprc ~/.setxkbmaprc
 	-ln -snf ~/dotfiles/Xsession ~/.Xsession
 	-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	-ln -snf ~/dotfiles/ncmpcpp ~/.ncmpcpp

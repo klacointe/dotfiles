@@ -22,6 +22,7 @@ symlinks:
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-mkdir -p ~/.config
 	-ln -snf ~/dotfiles/awesome ~/.config/awesome
+	-ln -snf ~/dotfiles/i3 ~/.config/i3
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 	-ln -snf ~/dotfiles/Xdefaults ~/.Xdefaults

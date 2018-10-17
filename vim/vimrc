@@ -115,7 +115,7 @@ set listchars=tab:\ \ ,nbsp:␣,trail:⋅
 set noequalalways
 set noexpandtab
 set hlsearch
-hi Search ctermbg=18
+hi Search ctermbg=01
 set noignorecase
 set nojoinspaces
 set nospell
@@ -127,7 +127,7 @@ set pastetoggle=<F10>
 set ruler
 set nu
 set scrolloff=3
-set shiftwidth=4
+set shiftwidth=2
 set shortmess=atI
 set showcmd
 set showmatch
@@ -136,7 +136,7 @@ set smartindent
 set smarttab
 set spelllang=fr,en
 set spellsuggest=best,3
-set tabstop=4
+set tabstop=2
 set textwidth=0
 set title
 set ttimeout
@@ -254,7 +254,7 @@ vnoremap > >gv
 " https://github.com/mxw/vim-jsx#usage
 let g:jsx_ext_required = 0
 
-" ale / prettier
+" ale
 let g:ale_fixers = {}
 let g:ale_fixers['javascript'] = ['prettier']
 let g:ale_fixers['elixir'] = ['mix_format']

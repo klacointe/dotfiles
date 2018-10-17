@@ -6,7 +6,7 @@
 *imLocale:fr_FR.UTF8
 *saveLines:5000
 
-! Perl extensions for uxxvt
+! Perl extensions for urxvt
 URxvt.perl-ext: default,matcher,selection-autotransform
 URxvt.matcher.button: 1
 URxvt.urlLauncher: x-www-browser

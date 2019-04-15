@@ -35,3 +35,5 @@ alias freeboxtv="vlc --avcodec-hw=vaapi http://mafreebox.freebox.fr/freeboxtv/pl
 alias caps_lock="xdotool key Caps_Lock"
 
 alias json_view="python -m json.tool"
+
+alias no_blank_screen="xset dpms 0 0 0 && xset s noblank  && xset s off"

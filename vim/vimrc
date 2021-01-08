@@ -44,6 +44,7 @@ Plug 'rust-lang/rust.vim'
 Plug 'styled-components/vim-styled-components'
 Plug 'mhinz/vim-mix-format'
 Plug 'dag/vim-fish'
+Plug 'jparise/vim-graphql'
 " Colors
 Plug 'altercation/vim-colors-solarized'
 Plug 'chriskempson/base16-vim'
@@ -92,13 +93,10 @@ if has("gui_running")
 	"             \' >> ~/.gtkrc.mine'
 else
 	" https://github.com/chriskempson/base16-vim/issues/2
-  "let base16colorspace=256
-	"set t_Co=256
-	"set bg=dark
-	"colorscheme base16-default-dark
-	" colorscheme
 	let base16colorspace=256
+	set termguicolors
 	source ~/.vim/colorscheme.vim
+	"hi Search ctermbg=01
 endif
 
 set autoindent
@@ -119,9 +117,8 @@ set lazyredraw
 set list
 set listchars=tab:\ \ ,nbsp:␣,trail:⋅
 set noequalalways
-set noexpandtab
+set expandtab
 set hlsearch
-hi Search ctermbg=01
 set noignorecase
 set nojoinspaces
 set nospell
@@ -227,7 +224,7 @@ let javascript_space_errors = 1
 vmap / :s#^#//\ #<CR>gv:s#^//\ //\ ##<CR>
 vmap # :s/^/#\ /<CR>gv:s/^#\ #\ //<CR>
 
-" 2 spaces indentation for coffeescript and css.
+" 2 spaces indentation
 autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.cr setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.json setl shiftwidth=2 expandtab
@@ -236,6 +233,7 @@ autocmd BufNewFile,BufReadPost *.less setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.scss setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.sass setl shiftwidth=2 expandtab
 autocmd BufNewFile,BufReadPost *.sc setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.sh setl shiftwidth=2 expandtab
 
 " SudoW command to save a file as root
 command! -bar -nargs=0 SudoW   :silent exe "write !sudo tee % >/dev/null"|silent edit!
@@ -261,14 +259,19 @@ vnoremap > >gv
 let g:jsx_ext_required = 0
 
 " ale
+"highlight ALEWarning ctermbg=01
+highlight clear ALEWarning
 let g:ale_fixers = {}
 let g:ale_fixers['javascript'] = ['prettier']
+let g:ale_fixers['graphql'] = ['prettier']
 let g:ale_fixers['elixir'] = ['mix_format']
 let g:ale_fixers['ruby'] = ['remove_trailing_lines', 'rubocop', 'rufo', 'trim_whitespace']
 let g:ale_linters = {}
 let g:ale_linters['javascript'] = ['prettier', 'eslint']
+let g:ale_linters['graphql'] = ['prettier', 'eslint']
 let g:ale_linters['ruby'] = ['rubocop']
-"let g:ale_linters['elixir'] = ['elixir-ls']
+let g:ale_linters['elixir'] = ['credo']
+"let g:ale_linters['elixir'] = ['dialyxir', 'elixir-ls']
 "let g:ale_elixir_elixir_ls_release = '/home/klacointe/.elixir-ls'
 let g:ale_linters_explicit = 1
 map <C-x> :ALEFix<CR>

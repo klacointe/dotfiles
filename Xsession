@@ -1,4 +1,4 @@
-xrdb -load ~/.Xdefaults
+xrdb -merge ~/.Xdefaults
 setxkbmap -option ctrl:nocaps
 setxkbmap -option compose:prsc
 xset b off

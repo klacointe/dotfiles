@@ -25,7 +25,7 @@ source ~/.Xsession
 ssh-add ~/.ssh/id_dsa > /dev/null
 
 ## Usefull for xdg-open
-export BROWSER=google-chrome
+export BROWSER=google-chrome-stable
 #xdg-mime default chromium.desktop x-scheme-handler/http
 #xdg-mime default chromium.desktop x-scheme-handler/https
 

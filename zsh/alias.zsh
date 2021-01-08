@@ -37,3 +37,10 @@ alias caps_lock="xdotool key Caps_Lock"
 alias json_view="python -m json.tool"
 
 alias no_blank_screen="xset dpms 0 0 0 && xset s noblank  && xset s off"
+
+# when change /etc/default/keyboard
+alias reload_keyboard="udevadm trigger --subsystem-match=input --action=change"
+
+function ssh_jump() {
+  ssh -A -J $1 -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $2
+}

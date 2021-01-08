@@ -8,6 +8,7 @@ path=(
        $HOME/bin
        $HOME/.local/bin
 			 $HOME/.awless
+			 /usr/local/go/bin
        .
 )
 

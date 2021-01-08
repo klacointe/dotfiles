@@ -37,20 +37,26 @@ set $ws2 2:www
 set $ws3 3:mumble
 set $ws6 6:slack
 
-workspace $ws1 output DP-1
-workspace $ws2 output DP-1
-workspace $ws3 output DP-1
+#workspace $ws1 output DP-1
+#workspace $ws2 output DP-1
+#workspace $ws3 output DP-1
+workspace $ws1 output HDMI-1
+workspace $ws2 output HDMI-1
+workspace $ws3 output HDMI-1
 workspace $ws6 output eDP-1
 
 assign [class="Google-chrome"] $ws2
 assign [class="Slack"] $ws6
+assign [class="Mumble"] $ws3
+assign [class="Telegram"] $ws3
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
 
 # start a terminal
 #bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+Return exec alacritty
+#bindsym $mod+Return exec alacritty
+bindsym $mod+Return exec urxvt
 
 # kill focused window
 bindsym $mod+Shift+A kill
@@ -150,6 +156,7 @@ bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcu
 
 # screen saver
 #bindsym $mod+XF86Explorer exec "gnome-screensaver-command --lock"
+bindsym $mod+Shift+x exec "gnome-screensaver-command --lock"
 
 # Brightness
 #bindsym XF86MonBrightnessUp exec xbacklight -inc 10
@@ -182,6 +189,9 @@ mode "resize" {
 #bindsym $mod+r mode "resize"
 bindsym $mod+d mode "resize"
 
+# network-manager
+#bindsym $mod+w exec rxvt -e nmtui
+
 # Start i3bar to display a workspace bar (plus the system information i3status
 # finds out, if available)
 bar {
@@ -191,22 +201,29 @@ bar {
 # Start some applications
 exec --no-startup-id setxkbmap -config ~/.setxkbmaprc
 exec --no-startup-id xrdb -load ~/.Xdefaults
-#exec --no-startup-id gnome-settings-daemon
-exec --no-startup-id clipit
+exec --no-startup-id gnome-settings-daemon
+#exec --no-startup-id clipit
+exec --no-startup-id xfce4-clipman
 exec --no-startup-id nm-applet
 exec --no-startup-id blueman-applet
-exec --no-startup-id xflux -l 47.2494910 -q -1.4873310
+#exec --no-startup-id xflux -l 47.2494910 -q -1.4873310
 exec --no-startup-id gnome-screensaver
+exec --no-startup-id xrandr --output eDP-1 --mode 1600x900
+exec --no-startup-id flameshot
 
 # Keyboard mapping
 
 # Switch monitors shortcut
-set $displayMode "Configure external monitor [l]left [r]right [n]none"
+set $displayMode "Configure external monitor [l]left [r]right [a]above [n]none"
 bindsym $mod+x mode $displayMode
 mode $displayMode {
-  bindsym l exec "xrandr --output DP-1 --auto --left-of eDP-1"; mode "default"
-  bindsym r exec "xrandr --output DP-1 --auto --right-of eDP-1"; mode "default"
-  bindsym n exec "xrandr --output DP-1 --off"; mode "default"
+  #bindsym l exec "xrandr --output DP-1 --auto --left-of eDP-1"; mode "default"
+  #bindsym r exec "xrandr --output DP-1 --auto --right-of eDP-1"; mode "default"
+  #bindsym n exec "xrandr --output DP-1 --off"; mode "default"
+  bindsym l exec "xrandr --output HDMI-1 --auto --left-of eDP-1"; mode "default"
+  bindsym r exec "xrandr --output HDMI-1 --auto --right-of eDP-1"; mode "default"
+  bindsym a exec "xrandr --output HDMI-1 --auto --above eDP-1"; mode "default"
+  bindsym n exec "xrandr --output HDMI-1 --off"; mode "default"
 
   bindsym Return mode "default"
   bindsym Escape mode "default"

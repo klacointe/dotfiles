@@ -16,9 +16,9 @@ alias gti="git"
 alias fan-fullspeed="echo level full-speed | sudo tee /proc/acpi/ibm/fan"
 alias fan-auto="echo level auto | sudo tee /proc/acpi/ibm/fan"
 
-alias brightness-high="echo 850 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias brightness-medium="echo 500 | sudo tee /sys/class/backlight/intel_backlight/brightness"
-alias brightness-low="echo 222 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias brightness-high="echo 20000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias brightness-medium="echo 15000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
+alias brightness-low="echo 10000 | sudo tee /sys/class/backlight/intel_backlight/brightness"
 
 alias nautilus="dbus-launch nautilus"
 

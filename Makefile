@@ -12,6 +12,8 @@ install_debs:
 		#libxml2-dev libxslt-dev nginx openssl libmysql++-dev mongodb-server \
 		#redis-server
 
+# TODO add .fzf
+
 symlinks:
 	-ln -snf ~/dotfiles/profile ~/.profile
 	-ln -snf ~/dotfiles/zsh ~/.zsh

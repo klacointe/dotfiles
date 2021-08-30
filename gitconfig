@@ -28,6 +28,8 @@
 [diff]
   renames = true
   submodule = log
+[pull]
+  rebase = true
 [branch]
   autosetupmerge = true
   autosetuprebase = always

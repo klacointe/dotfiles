@@ -35,4 +35,4 @@ fpath+=~/.zsh/.zsh_functions
 
 # elixir history
 export ERL_AFLAGS="-kernel shell_history enabled"
-source <(awless completion zsh)
+#source <(awless completion zsh)

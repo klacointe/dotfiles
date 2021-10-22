@@ -19,6 +19,7 @@ symlinks:
 	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
 	-ln -snf ~/dotfiles/vim ~/.vim
+	-ln -snf ~/dotfiles/nvim ~/.config/nvim
 	-ln -snf ~/.vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc

@@ -1,18 +1,18 @@
 path=(
-       /bin
-       /sbin
-       /usr/bin
-       /usr/sbin
-       /usr/local/bin
-       /usr/local/sbin
-       $HOME/bin
-       $HOME/.local/bin
-			 $HOME/.awless
-			 /usr/local/go/bin
-       .
+  /bin
+  /sbin
+  /usr/bin
+  /usr/sbin
+  /usr/local/bin
+  /usr/local/sbin
+  $HOME/bin
+  $HOME/.local/bin
+  $HOME/.awless
+  /usr/local/go/bin
+  .
 )
 
-export VISUAL=vim
-export EDITOR=vim
+export VISUAL=nvim
+export EDITOR=nvim
 
 umask 022

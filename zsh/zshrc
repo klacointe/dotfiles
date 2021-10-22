@@ -1,12 +1,15 @@
 #!/bin/zsh
 
+# initialise completions with ZSH's compinit
 autoload -Uz compinit && compinit
+
+umask 022
 
 source ~/.zsh/colors.zsh
 source ~/.zsh/env.zsh
 source ~/.zsh/alias.zsh
 
-# Antigen
+# Antigen plugins
 source ~/.zsh/antigen.zsh
 antigen use oh-my-zsh
 antigen bundle zsh-users/zsh-syntax-highlighting
@@ -15,10 +18,12 @@ antigen bundle emoji
 antigen theme simple
 antigen apply
 
+# 3rd party integrations
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 [ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
 [ -f ~/.asdf/completions/asdf.bash ] && source ~/.asdf/completions/asdf.bash
 [ -f ~/.zsh/tmuxinator.zsh ] && source ~/.zsh/tmuxinator.zsh
+
 
 # elixir history
 export ERL_AFLAGS="-kernel shell_history enabled"

@@ -26,8 +26,6 @@ alias ack="ack --page='less -r'"
 
 alias reload_xdefaults="xrdb ~/.Xdefaults"
 
-alias vpnftv="jnc -l 0 -n jaguar"
-
 alias gourmand="du --max-depth=1 . | sort -n -r"
 
 alias freeboxtv="vlc --avcodec-hw=vaapi http://mafreebox.freebox.fr/freeboxtv/playlist.m3u &"

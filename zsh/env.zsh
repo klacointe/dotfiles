@@ -15,4 +15,3 @@ path=(
 export VISUAL=nvim
 export EDITOR=nvim
 
-umask 022

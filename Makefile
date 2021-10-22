@@ -4,6 +4,7 @@ install_deps_server:
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install
 	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh
+	-[ ! -d ~/.asdf ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 
 install_deps:
 	-sudo apt update
@@ -13,6 +14,7 @@ install_deps:
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install
 	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh
+	-[ ! -d ~/.asdf ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 
 		#binutils bison gcc build-essential rxvt-unicode-256color \
 		#ttf-mscorefonts-installer fonts-inconsolata \

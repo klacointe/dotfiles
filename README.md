@@ -23,7 +23,7 @@ ssh-keygen -t ed25519
 ## Clone repository
 
 ```bash
-git clone https://github.com/klacointe/dotfiles
+git clone git@github.com:klacointe/dotfiles.git
 cd dotfiles
 ```
 

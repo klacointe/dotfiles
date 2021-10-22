@@ -5,7 +5,9 @@ let g:coq_settings = { 'auto_start': 'shut-up' }
 source $HOME/.config/nvim/vim-plug/plugins.vim
 
 " LSP
-source $HOME/.config/nvim/lua/lsp_config.lua
+if has('nvim-0.5')
+  source $HOME/.config/nvim/lua/lsp_config.lua
+endif
 
 " common
 set autoread            " Auto-reload modified files (with no local changes)

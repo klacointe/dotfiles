@@ -19,10 +19,14 @@ Plug 'chriskempson/base16-vim'
 Plug 'dense-analysis/ale'
 
 "" Completion
-Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+if has('nvim-0.5')
+  Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+endif
 
 "" language server configurations
-Plug 'neovim/nvim-lspconfig'
+if has('nvim-0.5')
+  Plug 'neovim/nvim-lspconfig'
+endif
 
 "" elixir
 Plug 'elixir-editors/vim-elixir'

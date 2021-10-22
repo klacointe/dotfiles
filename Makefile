@@ -39,21 +39,11 @@ symlinks:
 	#-ln -snf ~/dotfiles/nvim ~/.config/nvim
 
 init_subtrees:
-	-git remote show base16-xresources || git remote add -f base16-xresources "https://github.com/chriskempson/base16-xresources"
-	-git subtree add --prefix base16-xresources base16-xresources master --squash
-	-git remote show base16-shell || git remote add -f base16-shell "https://github.com/chriskempson/base16-shell"
-	-git subtree add --prefix base16-shell base16-shell master --squash
-	-git remote show tmux-copycat || git remote add -f tmux-copycat "https://github.com/tmux-plugins/tmux-copycat"
-	-git subtree add --prefix tmux/plugins/tmux-copycat tmux-copycat master --squash
-	-git remote show tpm || git remote add -f tpm "https://github.com/tmux-plugins/tpm"
-	-git subtree add --prefix tmux/plugins/tpm tpm master --squash
-	-git remote show powerline-fonts || git remote add -f powerline-fonts "https://github.com/powerline/fonts"
-	-git subtree add --prefix fonts powerline-fonts master --squash
-	-cd fonts && ./install.sh
+	-git subtree add --prefix=base16-xresources https://github.com/base16-templates/base16-xresources master --squash
+	-git subtree add --prefix=base16-shell https://github.com/chriskempson/base16-shell master --squash
+	-git subtree add --prefix=fonts https://github.com/powerline/fonts master --squash
 
 update_subtrees:
 	-git fetch base16-xresources master
 	-git fetch base16-shell master
-	-git fetch tmux-copycat master
-	-git fetch tpm master
 	-git fetch powerline-fonts master && cd fonts && ./install.sh

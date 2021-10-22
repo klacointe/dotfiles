@@ -26,9 +26,3 @@ ssh-add ~/.ssh/id_dsa > /dev/null
 
 ## Usefull for xdg-open
 export BROWSER=google-chrome-stable
-#xdg-mime default chromium.desktop x-scheme-handler/http
-#xdg-mime default chromium.desktop x-scheme-handler/https
-
-#export PEPPER_FLASH_VERSION=$(grep '"version":' /opt/google/chrome-unstable/PepperFlash/manifest.json| grep -Po '(?<=version": ")(?:\d|\.)*')
-## Pass this flasg to chromium in /etc/chromium.d/default-flags :
-export CHROMIUM_FLAGS="--password-store=detect --ppapi-flash-path=/home/klacointe/.config/google-chrome/PepperFlash/23.0.0.207/libpepflashplayer.so --ppapi-flash-version=$PEPPER_FLASH_VERSION"

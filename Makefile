@@ -15,7 +15,7 @@ install_deps:
 	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh
 
 		#binutils bison gcc build-essential rxvt-unicode-256color \
-		#ttf-mscorefonts-installer fonts-inconsolata ncmpcpp hexchat \
+		#ttf-mscorefonts-installer fonts-inconsolata \
 		#imagemagick libimage-exiftool-perl libreadline6-dev libssl-dev \
 		#libxml2-dev libxslt-dev nginx openssl libmysql++-dev mongodb-server \
 		#redis-server
@@ -52,8 +52,6 @@ symlinks:
 	#-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc
 	#-ln -snf ~/dotfiles/awesome ~/.config/awesome
-	#-ln -snf ~/dotfiles/ncmpcpp ~/.ncmpcpp
-	#-ln -snf ~/dotfiles/alacritty ~/.config/alacritty
 	#-ln -snf ~/dotfiles/nvim ~/.config/nvim
 
 init_subtrees:

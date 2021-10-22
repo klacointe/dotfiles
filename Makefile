@@ -42,8 +42,10 @@ init_subtrees:
 	-git subtree add --prefix=base16-xresources https://github.com/base16-templates/base16-xresources master --squash
 	-git subtree add --prefix=base16-shell https://github.com/chriskempson/base16-shell master --squash
 	-git subtree add --prefix=fonts https://github.com/powerline/fonts master --squash
+	-cd fonts && ./install.sh
 
 update_subtrees:
-	-git fetch base16-xresources master
-	-git fetch base16-shell master
-	-git fetch powerline-fonts master && cd fonts && ./install.sh
+	-git subtree pull --prefix=base16-xresources --squash https://github.com/base16-templates/base16-xresources master
+	-git subtree pull --prefix=base16-shell --squash https://github.com/chriskempson/base16-shell master
+	-git subtree pull --prefix=fonts --squash https://github.com/powerline/fonts master
+	-cd fonts && ./install.sh

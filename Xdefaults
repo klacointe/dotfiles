@@ -21,7 +21,7 @@ URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
 ! Base16 Default
 ! Scheme: Chris Kempson (http://chriskempson.com)
 ! https://github.com/chriskempson/base16-xresources
-#include "dotfiles/base16-xresources/base16-default.dark.256.xresources"
+#include "dotfiles/base16-xresources/xresources/base16-default-dark-256.Xresources"
 
 ! Font
 display*font: fixed

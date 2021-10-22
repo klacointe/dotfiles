@@ -31,9 +31,11 @@ let g:ctrlp_map = '<c-p>'
 let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
 
 " base16-vim
-let base16colorspace=256
-set termguicolors
 colorscheme base16-tomorrow-night
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
 
 " commentary
 xmap <C-c>  <Plug>Commentary

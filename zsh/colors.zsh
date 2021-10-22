@@ -1,6 +1,8 @@
 # Base16 Shell
-BASE16_SHELL="$HOME/.base16-shell/base16-default.dark.sh"
-[[ -s $BASE16_SHELL ]] && source $BASE16_SHELL
+BASE16_SHELL="$HOME/dotfiles/base16-shell/"
+[ -n "$PS1" ] && \
+    [ -s "$BASE16_SHELL/profile_helper.sh" ] && \
+        eval "$("$BASE16_SHELL/profile_helper.sh")"
 
 # Prefix for 256 colors:
 # * foreground: 38;5;colorN

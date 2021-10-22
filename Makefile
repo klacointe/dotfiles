@@ -3,6 +3,7 @@ install_deps_server:
 	-sudo apt install htop vim tmux neovim
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install
+	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh
 
 install_deps:
 	-sudo apt update
@@ -11,6 +12,7 @@ install_deps:
 		pm-utils
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install
+	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh
 
 		#binutils bison gcc build-essential rxvt-unicode-256color \
 		#ttf-mscorefonts-installer fonts-inconsolata ncmpcpp hexchat \

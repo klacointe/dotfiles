@@ -4,7 +4,7 @@
 
 ```bash
 sudo apt update
-sudo apt install make sudo zsh git
+sudo apt install make sudo zsh git curl
 ```
 
 ## Create a new user (as root)
@@ -14,7 +14,7 @@ adduser klacointe --home /home/klacointe --shell /bin/zsh
 usermod -a -G sudo klacointe
 ```
 
-## Create a new ssh key for created user (as klacointe)
+## Create a new ssh key for created user
 
 ```bash
 ssh-keygen -t ed25519

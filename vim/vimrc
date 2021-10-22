@@ -84,24 +84,9 @@ else
     au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
 endif
 
-if has("gui_running")
-	set bg=dark
-	colo bluetiful
-	set gfn=Inconsolata\ for\ Powerline\ 13
-	set gcr=a:blinkon0
-	set go=acegit
-	" Fix borders of fullscreen GUI
-	" let s:border = synIDattr(synIDtrans(hlID('Normal')), 'bg', 'gui')
-	" exe 'silent !echo ''style "vimfix" { bg[NORMAL] = "' . escape(s:border, '#') . '" }'''.
-	"             \' > ~/.gtkrc.mine'
-	" exe 'silent !echo ''widget "vim-main-window.*GtkForm" style "vimfix"'''.
-	"             \' >> ~/.gtkrc.mine'
-else
-	" https://github.com/chriskempson/base16-vim/issues/2
-	let base16colorspace=256
-	set termguicolors
-	source ~/.vim/colorscheme.vim
-	"hi Search ctermbg=01
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
 endif
 
 set autoindent

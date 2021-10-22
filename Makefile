@@ -15,7 +15,10 @@ install_debs:
 # TODO add .fzf
 
 symlinks:
+	-mkdir -p ~/.config
 	-ln -snf ~/dotfiles/profile ~/.profile
+	-ln -snf ~/dotfiles/Xsession ~/.Xsession
+	-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
 	-ln -snf ~/dotfiles/vim ~/.vim
@@ -25,15 +28,12 @@ symlinks:
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc
 	-ln -snf ~/dotfiles/gemrc ~/.gemrc
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
-	-mkdir -p ~/.config
 	#-ln -snf ~/dotfiles/awesome ~/.config/awesome
 	-ln -snf ~/dotfiles/i3 ~/.config/i3
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 	-ln -snf ~/dotfiles/Xdefaults ~/.Xdefaults
 	-ln -snf ~/dotfiles/setxkbmaprc ~/.setxkbmaprc
-	-ln -snf ~/dotfiles/Xsession ~/.Xsession
-	-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	#-ln -snf ~/dotfiles/ncmpcpp ~/.ncmpcpp
 	#-ln -snf ~/dotfiles/alacritty ~/.config/alacritty
 	#-ln -snf ~/dotfiles/nvim ~/.config/nvim

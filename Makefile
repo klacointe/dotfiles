@@ -1,6 +1,6 @@
 install_deps_server:
 	-sudo apt update
-	-sudo apt install htop vim tmux neovim
+	-sudo apt install htop vim tmux neovim tig
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install
 	-curl -L git.io/antigen > ~/dotfiles/zsh/antigen.zsh

@@ -1,21 +1,49 @@
 # Setup
 
-First install package `sudo` as `root` and add group `sudo` to your `user`.
+## Install some packages manually (as root)
+
+```bash
+sudo apt update
+sudo apt install make sudo zsh git
+```
+
+## Create a new user (as root)
+
+```bash
+adduser klacointe --home /home/klacointe --shell /bin/zsh
+usermod -a -G sudo klacointe
+```
+
+## Create a new ssh key for created user (as klacointe)
+
+```bash
+ssh-keygen -t ed25519
+```
+
+## Clone repository
 
 ```bash
 git clone https://github.com/klacointe/dotfiles
-make install
+cd dotfiles
 ```
 
-## Install Vim plugins
+## Server install
 
 ```bash
+make install_deps_server
+make symlinks_server
+```
+
+## Install vim plugins
+
+```bash
+vim .
 :PlugInstall
 ```
 
-## Install Go dependencies
+## Install neovim plugins
 
 ```bash
-go get github.com/mattn/gom
-go get github.com/bradfitz/goimports
+nvim .
+:PlugInstall
 ```

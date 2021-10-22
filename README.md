@@ -27,12 +27,24 @@ git clone https://github.com/klacointe/dotfiles
 cd dotfiles
 ```
 
-## Server install
+# Install
+
+## Server
 
 ```bash
 make install_deps_server
 make symlinks_server
 ```
+
+## Laptop
+
+```bash
+make install_deps
+make symlinks
+make init_subtrees
+```
+
+# Editor
 
 ## Install vim plugins
 

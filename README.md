@@ -44,6 +44,12 @@ make symlinks
 make init_subtrees
 ```
 
+# Choose base16 theme
+
+```bash
+base16_porple
+```
+
 # Editor
 
 ## Install vim plugins

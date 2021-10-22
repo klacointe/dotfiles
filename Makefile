@@ -1,16 +1,16 @@
-# TODO add .fzf
-
 install_deps_server:
 	-sudo apt update
 	-sudo apt install htop vim tmux neovim
-	-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	-[ -d ~/.fzf ] && ~/.fzf/install
 
 install_deps:
 	-sudo apt update
 	-sudo apt install -y xinit sudo vim net-tools git gnupg make curl zsh tmux tig \
 		rxvt-unicode-256color network-manager xfce4-clipman htop gcc autoconf g++ libpq-dev \
 		pm-utils
-	-git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf && ~/.fzf/install
+	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+	-[ -d ~/.fzf ] && ~/.fzf/install
 
 		#binutils bison gcc build-essential rxvt-unicode-256color \
 		#ttf-mscorefonts-installer fonts-inconsolata ncmpcpp hexchat \
@@ -58,10 +58,10 @@ init_subtrees:
 	-git subtree add --prefix=base16-xresources https://github.com/base16-templates/base16-xresources master --squash
 	-git subtree add --prefix=base16-shell https://github.com/chriskempson/base16-shell master --squash
 	-git subtree add --prefix=fonts https://github.com/powerline/fonts master --squash
-	-cd fonts && ./install.sh
+	-[ -d ~/dotfiles/fonts ] && ~/dotfiles/fonts/install.sh
 
 update_subtrees:
 	-git subtree pull --prefix=base16-xresources --squash https://github.com/base16-templates/base16-xresources master
 	-git subtree pull --prefix=base16-shell --squash https://github.com/chriskempson/base16-shell master
 	-git subtree pull --prefix=fonts --squash https://github.com/powerline/fonts master
-	-cd fonts && ./install.sh
+	-[ -d ~/dotfiles/fonts ] && ~/dotfiles/fonts/install.sh

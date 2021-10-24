@@ -27,9 +27,11 @@ symlinks_server:
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
-	-ln -snf ~/dotfiles/vim ~/.vim
-	-ln -snf ~/.vim/vimrc ~/.vimrc
+	#-ln -snf ~/dotfiles/vim ~/.vim
 	-ln -snf ~/dotfiles/nvim ~/.config/nvim
+	-mkdir -p ~/.vim
+	-ln -snf ~/dotfiles/nvim/autoload ~/.vim/autoload
+	-ln -snf ~/dotfiles/vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
@@ -43,9 +45,12 @@ symlinks:
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf
-	-ln -snf ~/dotfiles/vim ~/.vim
-	-ln -snf ~/.vim/vimrc ~/.vimrc
+	#-ln -snf ~/dotfiles/vim ~/.vim
+	#-ln -snf ~/.vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/nvim ~/.config/nvim
+	-mkdir -p ~/.vim
+	-ln -snf ~/dotfiles/nvim/autoload ~/.vim/autoload
+	-ln -snf ~/dotfiles/vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
 	-ln -snf ~/dotfiles/i3 ~/.config/i3
 	-ln -snf ~/dotfiles/Xdefaults ~/.Xdefaults

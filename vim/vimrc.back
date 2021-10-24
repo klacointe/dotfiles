@@ -1,0 +1,278 @@
+" Plugins {{{ "
+
+" vim-plug
+call plug#begin('~/.vim/plugged')
+" Common
+Plug 'bling/vim-airline'
+Plug 'ervandew/supertab'
+Plug 'Raimondi/delimitMate'
+Plug 'scrooloose/nerdcommenter'
+Plug 'tpope/vim-fugitive'
+Plug 'int3/vim-extradite'
+Plug 'vasconcelloslf/vim-interestingwords'
+Plug 'godlygeek/tabular'
+Plug 'bronson/vim-trailing-whitespace'
+" Jump to file
+Plug 'ctrlpvim/ctrlp.vim'
+" Autocomplete
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete-buffer.vim'
+" Filetype
+Plug 'tpope/vim-bundler', { 'for': 'ruby' }
+Plug 'tpope/vim-rails', { 'for': 'ruby' }
+Plug 'kchmck/vim-coffee-script', { 'for': 'coffee' }
+Plug 'hail2u/vim-css3-syntax', { 'for': 'css' }
+Plug 'elixir-lang/vim-elixir', { 'for': ['elixir', 'eelixir'] }
+Plug 'tpope/vim-haml', { 'for': 'ruby' }
+Plug 'othree/html5.vim', { 'for': 'html' }
+Plug 'digitaltoad/vim-jade', { 'for': 'jade' }
+Plug 'digitaltoad/vim-pug', { 'for': 'pug' }
+Plug 'pangloss/vim-javascript', { 'for': 'javascript' }
+Plug 'nono/jquery.vim', { 'for': 'javascript' }
+Plug 'mxw/vim-jsx', { 'for': 'javascript' }
+Plug 'elzr/vim-json', { 'for': 'json' }
+Plug 'fatih/vim-go', { 'for': 'go' }
+Plug 'chr4/nginx.vim', { 'for': 'nginx' }
+Plug 'vim-pandoc/vim-pandoc-syntax', { 'for': 'pandoc' }
+Plug 'wavded/vim-stylus', { 'for': 'styl' }
+Plug 'groenewege/vim-less', { 'for': 'less' }
+Plug 'klen/python-mode', { 'for': 'python' }
+Plug 'mustache/vim-mustache-handlebars', { 'for': 'mustache' }
+Plug 'slim-template/vim-slim', { 'for': 'slim' }
+Plug 'rhysd/vim-crystal', { 'for': 'crystal' }
+Plug 'smerrill/vcl-vim-plugin', { 'for': 'vcl' }
+Plug 'w0rp/ale'
+Plug 'rust-lang/rust.vim'
+Plug 'styled-components/vim-styled-components'
+Plug 'mhinz/vim-mix-format'
+Plug 'dag/vim-fish'
+Plug 'jparise/vim-graphql'
+" Colors
+Plug 'altercation/vim-colors-solarized'
+Plug 'chriskempson/base16-vim'
+Plug 'mgutz/gosu-colors'
+call plug#end()
+
+" Increment Column :
+vnoremap <c-a> :call IncrementColumn()<cr>
+
+" Matchit
+runtime! macros/matchit.vim
+
+" Config
+let g:SuperTabDefaultCompletionType = "<C-P>"
+let g:go_fmt_command = "goimports"
+let g:airline_powerline_fonts = 1
+let g:html5_rdfa_attributes_complete = 0
+let g:vim_json_syntax_conceal = 0
+
+" }}}
+" Options globales {{{
+
+syntax on
+filetype on
+filetype plugin indent on
+set background=dark
+
+" color on 80th char
+if exists('+colorcolumn')
+	set colorcolumn=80
+else
+    au BufWinEnter * let w:m2=matchadd('ErrorMsg', '\%>80v.\+', -1)
+endif
+
+if filereadable(expand("~/.vimrc_background"))
+  let base16colorspace=256
+  source ~/.vimrc_background
+endif
+
+set autoindent
+set autoread            " Auto-reload modified files (with no local changes)
+set backspace=indent,eol,start
+set complete-=i
+set completeopt=menuone
+set dir-=.              " Don't put temporary files in current directory
+set encoding=utf-8
+set fileformat=unix
+set formatoptions+=j    " Delete comment character when joining commented lines
+set grepformat=%f:%l:%c:%m
+set grepprg=ag
+set incsearch
+set iskeyword+=-
+set laststatus=2        " Always show the statusbar
+set lazyredraw
+set list
+set listchars=tab:\ \ ,nbsp:␣,trail:⋅
+set noequalalways
+set expandtab
+set hlsearch
+set noignorecase
+set nojoinspaces
+set nospell
+set nostartofline
+set wrap
+set wrapscan
+set nrformats-=octal
+set pastetoggle=<F10>
+set ruler
+set nu
+set scrolloff=3
+set shiftwidth=2
+set shortmess=atI
+set showcmd
+set showmatch
+set sidescrolloff=5
+set smartindent
+set smarttab
+set spelllang=fr,en
+set spellsuggest=best,3
+set tabstop=2
+set textwidth=0
+set title
+set ttimeout
+set ttimeoutlen=100
+set virtualedit=block
+set wildignore+=*.o,*.so,*.a,*.pyc,*.8
+set wildmenu
+
+
+" }}}
+" Mappings {{{
+
+nnoremap <F1> K
+nnoremap <F8> :set spell!<CR>
+map <C-c> \ci<CR>
+
+" Don't make a # force column zero.
+inoremap # X<BS>#
+
+" Ctrl-+ to increase font size
+noremap <C-kplus> :let &guifont=substitute(&guifont, '\d\+', '\=eval(submatch(0)+1)', '')<CR>
+noremap <C-kminus> :let &guifont=substitute(&guifont, '\d\+', '\=eval(submatch(0)-1)', '')<CR>
+
+" Navigate between views with Ctrl + arrows
+noremap <C-Up> <C-W><Up>
+noremap <C-Down> <C-W><Down>
+noremap <C-Right> <C-W><Right>
+noremap <C-Left> <C-W><Left>
+
+" Completion
+inoremap <C-@> <C-P>
+
+" Open current line on GitHub
+nnoremap <F9> :!echo `git url`/blob/`git rev-parse --abbrev-ref HEAD`/%\#L<C-R>=line('.')<CR> \| xargs x-www-browser<CR><CR>
+
+
+" }}}
+" Autodetect filetypes {{{ "
+
+augroup vimrc
+	au BufRead,BufNewFile bip.conf set ft=bip
+	au BufRead,BufNewFile haproxy.cfg set ft=haproxy
+	au BufRead,BufNewFile Capfile,Vagrantfile,Guardfile set ft=ruby
+	au BufRead,BufNewFile *.dc set ft=dotclear
+	au BufRead,BufNewFile *.wiki set ft=moin
+	au BufRead,BufNewFile *.t2t set ft=txt2tags
+	au BufRead,BufNewFile *.textile set ft=textile
+	au BufRead,BufNewFile *.txt,*.md set ft=pandoc et tw=78
+	au BufRead,BufNewFile *.ditaa set ft=ditaa
+	au BufRead,BufNewFile Xdefaults set ft=xdefaults
+	au BufRead,BufNewFile README,INSTALL,ChangeLog set ft=txt
+	au BufRead,BufNewFile ~/.vim/doc/*.txt set ft=help nospell
+	au BufRead,BufNewFile *.es6 set ft=javascript
+	au BufRead,BufNewFile Gomfile set ft=ruby
+augroup END
+
+
+" }}}
+" Misc {{{ "
+
+let g:browser = 'x-www-browser'
+
+" Git grep with :G
+func GitGrep(...)
+	let save = &grepprg
+	set grepprg=git\ grep\ -n\ $*
+	let s = 'grep'
+	for i in a:000
+		let s = s . ' ' . i
+	endfor
+	exe s
+	let &grepprg = save
+endfun
+command -nargs=? G call GitGrep(<f-args>)
+
+" Show trailing white-space
+let ruby_space_errors = 1
+let c_space_errors = 1
+let javascript_space_errors = 1
+
+" Comments
+vmap / :s#^#//\ #<CR>gv:s#^//\ //\ ##<CR>
+vmap # :s/^/#\ /<CR>gv:s/^#\ #\ //<CR>
+
+" 2 spaces indentation
+autocmd BufNewFile,BufReadPost *.coffee setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.cr setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.json setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.css setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.less setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.scss setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.sass setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.sc setl shiftwidth=2 expandtab
+autocmd BufNewFile,BufReadPost *.sh setl shiftwidth=2 expandtab
+
+" SudoW command to save a file as root
+command! -bar -nargs=0 SudoW   :silent exe "write !sudo tee % >/dev/null"|silent edit!
+
+" Some aliases
+command! E :Explore
+command! S :Sexplore
+command! V :Vexplore
+
+" Automatically give executable permissions if file begins with #! and contains '/bin/' in the path
+function! MakeScriptExecuteable()
+	if getline(1) =~ "^#!.*/bin/"
+		silent !chmod +x <afile>
+	endif
+endfunction
+
+" vimbits
+au BufWritePost * call MakeScriptExecuteable()
+vnoremap < <gv
+vnoremap > >gv
+
+" https://github.com/mxw/vim-jsx#usage
+let g:jsx_ext_required = 0
+
+"highlight ALEWarning ctermbg=01
+highlight clear ALEWarning
+let g:ale_fixers = {}
+let g:ale_fixers['javascript'] = ['eslint', 'prettier']
+let g:ale_fixers['typescript'] = ['eslint', 'prettier']
+let g:ale_fixers['typescriptreact'] = ['eslint', 'prettier']
+let g:ale_fixers['graphql'] = ['esint', 'prettier']
+let g:ale_fixers['elixir'] = ['mix_format']
+let g:ale_fixers['ruby'] = ['rubocop', 'rufo', 'remove_trailing_lines', 'trim_whitespace']
+let g:ale_linters = {}
+let g:ale_linters['javascript'] = ['prettier', 'eslint']
+let g:ale_linters['typescript'] = ['prettier', 'eslint', 'tsserver']
+let g:ale_linters['typescriptreact'] = ['prettier', 'eslint', 'tsserver']
+let g:ale_linters['graphql'] = ['prettier', 'eslint']
+let g:ale_linters['elixir'] = ['credo']
+let g:ale_linters['ruby'] = ['rubocop']
+let g:ale_linters_explicit = 1
+let g:ale_completion_enabled = 1
+set omnifunc=ale#completion#OmniFunc
+map <C-x> :ALEFix<CR>
+
+" ctrlp
+let g:ctrlp_user_command = ['.git', 'cd %s && git ls-files -co --exclude-standard']
+
+" styled-components
+autocmd BufNewFile,BufRead *.sc   set syntax=javascript.jsx
+
+" }}}

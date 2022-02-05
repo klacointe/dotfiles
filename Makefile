@@ -53,6 +53,7 @@ symlinks:
 	-ln -snf ~/dotfiles/vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
 	-ln -snf ~/dotfiles/i3 ~/.config/i3
+	-ln -snf ~/dotfiles/i3status ~/.config/i3status
 	-ln -snf ~/dotfiles/Xdefaults ~/.Xdefaults
 	-ln -snf ~/dotfiles/setxkbmaprc ~/.setxkbmaprc
 	-ln -snf ~/dotfiles/gemrc ~/.gemrc

@@ -34,21 +34,26 @@ font pango:Droid Sans Mono for Powerline 10
 # Workspaces
 set $ws1 1:term
 set $ws2 2:www
-set $ws3 3:mumble
-set $ws6 6:slack
+set $ws5 5:slack
+set $ws6 6:chat
 
 #workspace $ws1 output DP-1
 #workspace $ws2 output DP-1
 #workspace $ws3 output DP-1
 workspace $ws1 output HDMI-1
 workspace $ws2 output HDMI-1
-workspace $ws3 output HDMI-1
+workspace $ws5 output eDP-1
 workspace $ws6 output eDP-1
 
-assign [class="Google-chrome"] $ws2
-assign [class="Slack"] $ws6
-assign [class="Mumble"] $ws3
-assign [class="Telegram"] $ws3
+workspace_layout stacking
+
+assign [class="chrome"] $ws2
+assign [class="firefox"] $ws2
+assign [class="Firefox"] $ws2
+assign [class="Slack"] $ws5
+assign [class="Mumble"] $ws6
+assign [class="Telegram"] $ws6
+assign [class="discord"] $ws6
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -123,9 +128,9 @@ bindsym $mod+q focus parent
 # switch to workspace
 bindsym $mod+ampersand workspace $ws1
 bindsym $mod+eacute workspace $ws2
-bindsym $mod+quotedbl workspace $ws3
+bindsym $mod+quotedbl workspace 3
 bindsym $mod+apostrophe workspace 4
-bindsym $mod+parenleft workspace 5
+bindsym $mod+parenleft workspace $ws5
 bindsym $mod+minus workspace $ws6
 bindsym $mod+egrave workspace 7
 bindsym $mod+underscore workspace 8
@@ -139,9 +144,9 @@ bindsym $mod+Right workspace next
 # move focused container to workspace
 bindsym $mod+Shift+1 move container to workspace $ws1
 bindsym $mod+Shift+eacute move container to workspace $ws2
-bindsym $mod+Shift+3 move container to workspace $ws3
+bindsym $mod+Shift+3 move container to workspace 3
 bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
+bindsym $mod+Shift+5 move container to workspace $ws5
 bindsym $mod+Shift+6 move container to workspace $ws6
 bindsym $mod+Shift+egrave move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
@@ -222,6 +227,7 @@ exec --no-startup-id blueman-applet
 #exec --no-startup-id xflux -l 47.2494910 -q -1.4873310
 exec --no-startup-id gnome-screensaver
 exec --no-startup-id xrandr --output eDP-1 --mode 1600x900
+#exec --no-startup-id xrandr --output eDP-1 --mode 2048x1152
 exec --no-startup-id flameshot
 
 # Keyboard mapping

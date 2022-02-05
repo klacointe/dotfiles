@@ -13,6 +13,9 @@ endif
 set autoread            " Auto-reload modified files (with no local changes)
 set encoding=utf-8
 set fileformat=unix
+set noswapfile
+set hlsearch
+set pastetoggle=<F10>
 let c_space_errors = 1
 
 " show line numbers
@@ -66,9 +69,15 @@ let g:ale_fixers['*'] = ['remove_trailing_lines', 'trim_whitespace']
 """ Elixir
 let g:ale_fixers['elixir'] = ['mix_format']
 
+""" Ruby
+let g:ale_fixers['ruby'] = ['rubocop']
+
 """ Javascript
 let g:ale_fixers['typescript'] = ['eslint', 'prettier']
 let g:ale_fixers['javascript'] = ['eslint', 'prettier']
+
+""" Golang
+let g:ale_fixers['go'] = ['gofmt']
 
 "" Linters
 let g:ale_linters = {}
@@ -76,6 +85,12 @@ let g:ale_linters = {}
 """ Elixir
 let g:ale_linters['elixir'] = ['credo', 'elixir-ls']
 
+""" Ruby
+let g:ale_linters['ruby'] = ['rubocop']
+
 """ Javascript
 let g:ale_linters['javascript'] = ['prettier', 'eslint']
 let g:ale_linters['typescript'] = ['prettier', 'eslint', 'tsserver']
+
+""" Golang
+let g:ale_linters['go'] = ['gofmt']

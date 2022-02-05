@@ -18,6 +18,9 @@ Plug 'chriskempson/base16-vim'
 " Code
 Plug 'dense-analysis/ale'
 
+" Git
+Plug 'tpope/vim-fugitive'
+
 "" Completion
 if has('nvim-0.5')
   Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}

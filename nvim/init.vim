@@ -60,6 +60,12 @@ nnoremap <C-]> :ALEGoToDefinition<CR>
 nnoremap <C-\> :ALEFindReferences<CR>
 nnoremap <C-k> :ALEHover<CR>
 
+highlight clear ALEErrorSign
+highlight clear ALEWarningSign
+let g:ale_set_highlights = 0
+" highlight ALEWarning ctermbg=DarkMagenta
+" highlight ALEError ctermbg=DarkRed
+
 "" fixers
 let g:ale_fixers = {}
 
@@ -74,6 +80,7 @@ let g:ale_fixers['ruby'] = ['rubocop']
 
 """ Javascript
 let g:ale_fixers['typescript'] = ['eslint', 'prettier']
+let g:ale_fixers['typescriptreact'] = ['eslint', 'prettier']
 let g:ale_fixers['javascript'] = ['eslint', 'prettier']
 
 """ Golang
@@ -91,6 +98,7 @@ let g:ale_linters['ruby'] = ['rubocop']
 """ Javascript
 let g:ale_linters['javascript'] = ['prettier', 'eslint']
 let g:ale_linters['typescript'] = ['prettier', 'eslint', 'tsserver']
+let g:ale_linters['typescriptreact'] = ['prettier', 'eslint', 'tsserver']
 
 """ Golang
 let g:ale_linters['go'] = ['gofmt']

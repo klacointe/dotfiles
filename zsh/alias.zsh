@@ -42,3 +42,5 @@ alias reload_keyboard="udevadm trigger --subsystem-match=input --action=change"
 function ssh_jump() {
   ssh -A -J $1 -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $2
 }
+
+alias database_size="PGPASSWORD=wttj watch -c \"psql -U wttj -d postgres -c 'SELECT pg_database.datname as database_name, pg_size_pretty(pg_database_size(pg_database.datname)), pg_database_size(pg_database.datname) as size FROM pg_database ORDER by size DESC;'\""

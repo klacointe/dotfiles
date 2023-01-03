@@ -43,7 +43,8 @@ load {
 }
 
 memory {
-        format = "MEM %used / %available"
+        # format = "MEM %used | %available"
+        format = "MEM %available"
         threshold_degraded = "3G"
         format_degraded = "MEMORY < %available"
 }

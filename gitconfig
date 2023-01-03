@@ -39,3 +39,7 @@
   browser = chromium
 [status]
   submodulesummary = 1
+[rerere]
+	autoupdate = true
+[init]
+	defaultBranch = main

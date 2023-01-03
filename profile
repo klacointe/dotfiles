@@ -22,7 +22,6 @@ if [ -d "$HOME/bin" ] ; then
 fi
 
 source ~/.Xsession
-ssh-add ~/.ssh/id_dsa > /dev/null
 
 ## Usefull for xdg-open
 export BROWSER=google-chrome-stable

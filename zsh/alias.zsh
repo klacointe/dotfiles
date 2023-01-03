@@ -44,3 +44,6 @@ function ssh_jump() {
 }
 
 alias database_size="PGPASSWORD=wttj watch -c \"psql -U wttj -d postgres -c 'SELECT pg_database.datname as database_name, pg_size_pretty(pg_database_size(pg_database.datname)), pg_database_size(pg_database.datname) as size FROM pg_database ORDER by size DESC;'\""
+
+alias gnome_dark="gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
+alias gnome_light="gsettings set org.gnome.desktop.interface color-scheme prefer-light"

@@ -9,7 +9,7 @@ install_deps_server:
 install_deps:
 	-sudo apt update
 	-sudo apt install -y xinit sudo vim net-tools git gnupg make curl zsh tmux tig \
-		rxvt-unicode-256color network-manager xfce4-clipman htop gcc autoconf g++ libpq-dev \
+		rxvt-unicode-256color network-manager xfce4-clipman htop gcc autoconf g++ libpq-dev python3-venv \
 		pm-utils
 	-[ ! -d ~/.fzf ] && git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 	-[ -d ~/.fzf ] && ~/.fzf/install

@@ -61,6 +61,7 @@ symlinks:
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc
 	#-ln -snf ~/dotfiles/awesome ~/.config/awesome
 	#-ln -snf ~/dotfiles/nvim ~/.config/nvim
+	-base16_porple
 
 init_subtrees:
 	-git subtree add --prefix=base16-xresources https://github.com/base16-templates/base16-xresources master --squash

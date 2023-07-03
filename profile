@@ -24,4 +24,4 @@ fi
 source ~/.Xsession
 
 ## Usefull for xdg-open
-export BROWSER=google-chrome-stable
+export BROWSER=google-chrome

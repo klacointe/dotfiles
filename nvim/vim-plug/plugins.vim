@@ -34,6 +34,9 @@ endif
 "" elixir
 Plug 'elixir-editors/vim-elixir'
 
+"" Terraform
+Plug 'hashivim/vim-terraform'
+
 "" misc
 Plug 'tpope/vim-commentary'
 Plug 'bronson/vim-trailing-whitespace'

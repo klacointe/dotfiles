@@ -18,6 +18,9 @@ set hlsearch
 set pastetoggle=<F10>
 let c_space_errors = 1
 
+" mouse
+set mouse=
+
 " show line numbers
 set nu
 
@@ -66,7 +69,11 @@ let g:ale_set_highlights = 0
 " highlight ALEWarning ctermbg=DarkMagenta
 " highlight ALEError ctermbg=DarkRed
 
-"" fixers
+
+" filetypes
+au BufNewFile,BufRead *.tsx setlocal filetype=typescript.tsx
+
+" fixers
 let g:ale_fixers = {}
 
 """ Global
@@ -76,10 +83,12 @@ let g:ale_fixers['*'] = ['remove_trailing_lines', 'trim_whitespace']
 let g:ale_fixers['elixir'] = ['mix_format']
 
 """ Ruby
-let g:ale_fixers['ruby'] = ['rubocop']
+" let g:ale_fixers['ruby'] = ['rubocop', 'standardrb']
+let g:ale_fixers['ruby'] = ['standardrb']
 
 """ Javascript
 let g:ale_fixers['typescript'] = ['eslint', 'prettier']
+let g:ale_fixers['typescript.jsx'] = ['eslint', 'prettier']
 let g:ale_fixers['typescriptreact'] = ['eslint', 'prettier']
 let g:ale_fixers['javascript'] = ['eslint', 'prettier']
 
@@ -93,11 +102,13 @@ let g:ale_linters = {}
 let g:ale_linters['elixir'] = ['credo', 'elixir-ls']
 
 """ Ruby
-let g:ale_linters['ruby'] = ['rubocop']
+" let g:ale_linters['ruby'] = ['rubocop', 'standardrb']
+let g:ale_linters['ruby'] = ['standardrb']
 
 """ Javascript
 let g:ale_linters['javascript'] = ['prettier', 'eslint']
 let g:ale_linters['typescript'] = ['prettier', 'eslint', 'tsserver']
+let g:ale_linters['typescript.jsx'] = ['prettier', 'eslint', 'tsserver']
 let g:ale_linters['typescriptreact'] = ['prettier', 'eslint', 'tsserver']
 
 """ Golang

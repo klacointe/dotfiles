@@ -9,6 +9,7 @@ path=(
   $HOME/.local/bin
   $HOME/.awless
   /usr/local/go/bin
+  $HOME/dev/gitleaks
   .
 )
 

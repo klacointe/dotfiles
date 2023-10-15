@@ -47,3 +47,5 @@ alias database_size="PGPASSWORD=wttj watch -c \"psql -U wttj -d postgres -c 'SEL
 
 alias gnome_dark="gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
 alias gnome_light="gsettings set org.gnome.desktop.interface color-scheme prefer-light"
+
+alias xtmux='tmux new -s "${PWD##*/}"'

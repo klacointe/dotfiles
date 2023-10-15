@@ -22,9 +22,9 @@ Plug 'dense-analysis/ale'
 Plug 'tpope/vim-fugitive'
 
 "" Completion
-if has('nvim-0.5')
-  Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
-endif
+" if has('nvim-0.5')
+"   Plug 'ms-jpq/coq_nvim', {'branch': 'coq'}
+" endif
 
 "" language server configurations
 if has('nvim-0.5')

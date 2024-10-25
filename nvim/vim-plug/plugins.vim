@@ -17,6 +17,7 @@ Plug 'chriskempson/base16-vim'
 
 " Code
 Plug 'dense-analysis/ale'
+Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 
 " Git
 Plug 'tpope/vim-fugitive'
@@ -27,9 +28,9 @@ Plug 'tpope/vim-fugitive'
 " endif
 
 "" language server configurations
-if has('nvim-0.5')
-  Plug 'neovim/nvim-lspconfig'
-endif
+" if has('nvim-0.5')
+"   Plug 'neovim/nvim-lspconfig'
+" endif
 
 "" elixir
 Plug 'elixir-editors/vim-elixir'

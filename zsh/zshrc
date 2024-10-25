@@ -11,6 +11,7 @@ source ~/.zsh/alias.zsh
 
 # Antigen plugins
 source ~/.zsh/antigen.zsh
+#zstyle ':omz:alpha:lib:git' async-prompt force
 antigen use oh-my-zsh
 antigen bundle zsh-users/zsh-syntax-highlighting
 antigen bundle git

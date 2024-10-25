@@ -23,8 +23,9 @@
   ui = auto
   pager = true
 [core]
-  editor = vim
+  editor = nvim
   whitespace = trailing-space,space-before-tab
+  attributesfile = /home/klacointe/.gitattributes
 [diff]
   renames = true
   submodule = log
@@ -43,3 +44,6 @@
 	autoupdate = true
 [init]
 	defaultBranch = main
+[diff "sops"]
+  textconv = sops -d
+  binary = true

@@ -4,10 +4,14 @@ let g:coq_settings = { 'auto_start': 'shut-up' }
 " Plugins
 source $HOME/.config/nvim/vim-plug/plugins.vim
 
+if has('nvim-0.9')
+  source $HOME/.config/nvim/lua/treesitter.lua
+end
+
 " LSP
-if has('nvim-0.5')
-  source $HOME/.config/nvim/lua/lsp_config.lua
-endif
+" if has('nvim-0.5')
+"   source $HOME/.config/nvim/lua/lsp_config.lua
+" endif
 
 " common
 set autoread            " Auto-reload modified files (with no local changes)
@@ -72,44 +76,40 @@ let g:ale_set_highlights = 0
 
 " filetypes
 au BufNewFile,BufRead *.tsx setlocal filetype=typescript.tsx
+au BufNewFile,BufRead *.hcl setlocal filetype=terraform
 
-" fixers
+" Init linters and fixers
 let g:ale_fixers = {}
+let g:ale_linters = {}
 
 """ Global
 let g:ale_fixers['*'] = ['remove_trailing_lines', 'trim_whitespace']
 
 """ Elixir
+let g:ale_linters['elixir'] = ['credo', 'elixir-ls']
 let g:ale_fixers['elixir'] = ['mix_format']
 
 """ Ruby
-" let g:ale_fixers['ruby'] = ['rubocop', 'standardrb']
-let g:ale_fixers['ruby'] = ['standardrb']
-
-""" Javascript
-let g:ale_fixers['typescript'] = ['eslint', 'prettier']
-let g:ale_fixers['typescript.jsx'] = ['eslint', 'prettier']
-let g:ale_fixers['typescriptreact'] = ['eslint', 'prettier']
-let g:ale_fixers['javascript'] = ['eslint', 'prettier']
-
-""" Golang
-let g:ale_fixers['go'] = ['gofmt']
-
-"" Linters
-let g:ale_linters = {}
-
-""" Elixir
-let g:ale_linters['elixir'] = ['credo', 'elixir-ls']
-
-""" Ruby
-" let g:ale_linters['ruby'] = ['rubocop', 'standardrb']
 let g:ale_linters['ruby'] = ['standardrb']
+let g:ale_fixers['ruby'] = ['standardrb']
 
 """ Javascript
 let g:ale_linters['javascript'] = ['prettier', 'eslint']
 let g:ale_linters['typescript'] = ['prettier', 'eslint', 'tsserver']
 let g:ale_linters['typescript.jsx'] = ['prettier', 'eslint', 'tsserver']
 let g:ale_linters['typescriptreact'] = ['prettier', 'eslint', 'tsserver']
+let g:ale_fixers['typescript'] = ['eslint', 'prettier']
+let g:ale_fixers['typescript.jsx'] = ['eslint', 'prettier']
+let g:ale_fixers['typescriptreact'] = ['eslint', 'prettier']
+let g:ale_fixers['javascript'] = ['eslint', 'prettier']
+
+"""Python
+let g:ale_fixers['python'] = ['black']
 
 """ Golang
 let g:ale_linters['go'] = ['gofmt']
+let g:ale_fixers['go'] = ['gofmt']
+
+""" Terraform
+let g:ale_linters['terraform'] = ['terraform']
+let g:ale_fixers['terraform'] = ['terraform']

@@ -226,7 +226,7 @@ exec --no-startup-id parcellite
 exec --no-startup-id nm-applet
 exec --no-startup-id blueman-applet
 #exec --no-startup-id xflux -l 47.2494910 -q -1.4873310
-exec --no-startup-id gnome-screensaver
+#exec --no-startup-id gnome-screensaver
 exec --no-startup-id xrandr --output eDP-1 --mode 1680x1050
 #exec --no-startup-id xrandr --output eDP-1 --mode 1600x900
 #exec --no-startup-id xrandr --output eDP-1 --mode 2048x1152

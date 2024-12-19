@@ -49,7 +49,7 @@ symlinks:
 	#-ln -snf ~/.vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/nvim ~/.config/nvim
 	-mkdir -p ~/.vim
-	-ln -snf ~/dotfiles/nvim/autoload ~/.vim/autoload
+	#-ln -snf ~/dotfiles/nvim/autoload ~/.vim/autoload
 	-ln -snf ~/dotfiles/vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
 	-ln -snf ~/dotfiles/i3 ~/.config/i3
@@ -60,7 +60,6 @@ symlinks:
 	#-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc
 	#-ln -snf ~/dotfiles/awesome ~/.config/awesome
-	#-ln -snf ~/dotfiles/nvim ~/.config/nvim
 	-base16_porple
 
 init_subtrees:

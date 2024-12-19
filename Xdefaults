@@ -25,7 +25,8 @@ URxvt.matcher.pattern.1: \\bwww\\.[\\w-]\\.[\\w./?&@#-]*[\\w/-]
 
 ! Font
 display*font: fixed
-*font: xft:Droid Sans Mono for Powerline:pixelsize=16
+!*font: xft:Droid Sans Mono for Powerline:pixelsize=16
+*font: xft:Inconsolata Nerd Font:pixelsize=16
 
 !URxvt.keysym.M-C-KP_0: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=12\007
 !URxvt.keysym.M-C-KP_1: command:\033]710;xft:Droid Sans Mono for Powerline:pixelsize=14\007

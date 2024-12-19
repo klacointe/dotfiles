@@ -53,3 +53,5 @@ alias xtmux='tmux new -s "${PWD##*/}"'
 alias git_clean_merged='git branch --merged | grep -Ev "(^\*|master|main)" | xargs git branch -d'
 
 alias off!='killall ruby node webpack nvim beam.smp'
+
+alias fwupdate='fwupdmgr refresh && fwupdmgr update'

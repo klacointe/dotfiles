@@ -216,6 +216,7 @@ exec --no-startup-id blueman-applet
 #exec --no-startup-id xflux -l 47.2494910 -q -1.4873310
 exec --no-startup-id xrandr --output eDP-1 --mode 1680x1050
 exec --no-startup-id flameshot
+exec --no-startup-id polychromatic-tray-applet
 
 # Keyboard mapping
 

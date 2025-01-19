@@ -29,14 +29,16 @@ Enable these options:
 - Synchronize clipboards
 
 
-## Install a nerd font
+## Fonts
 
 ```
 ln -s /home/klacointe/dotfiles/fonts /home/klacointe/.fonts
 fc-cache -fv
 ```
 
-NB: If you want another font: https://www.nerdfonts.com/font-downloads
+Links:
+- https://www.nerdfonts.com/font-downloads
+
 
 ## Git
 

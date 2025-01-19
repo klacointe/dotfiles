@@ -18,7 +18,7 @@ sudo apt install make gcc git curl
 
 Optional:
 ```
-sudo apt install htop gnome-tweaks parcellite
+sudo apt install htop gnome-tweaks parcellite pulseaudio-utils
 ```
 
 ## Parcellite (optional)
@@ -64,7 +64,12 @@ ln -s /home/klacointe/dotfiles/setxkbmaprc /home/klacointe/.setxkbmaprc
 ## Terminal & Shell
 
 ```
-sudo apt install kitty zsh tmux
+sudo apt install zsh tmux
+
+curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+
+sudo ln -s /home/klacointe/.local/kitty.app/bin/kitty /usr/bin/
+sudo ln -s /home/klacointe/.local/kitty.app/bin/kitten /usr/bin/
 
 ln -s /home/klacointe/dotfiles/kitty /home/klacointe/.config/kitty
 

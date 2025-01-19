@@ -1,67 +1,124 @@
 # Setup
 
-## Install some packages manually (as root)
-
-```bash
-sudo apt update
-sudo apt install make sudo zsh git curl
+```
+sudo lsb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 24.04.1 LTS
+Release:	24.04
+Codename:	noble
 ```
 
-## Create a new user (as root)
 
-```bash
-adduser klacointe --home /home/klacointe --shell /bin/zsh
-usermod -a -G sudo klacointe
+## Install packages
+
+```
+sudo apt install make gcc git curl
 ```
 
-## Create a new ssh key for created user
-
-```bash
-ssh-keygen -t ed25519
+Optional:
+```
+sudo apt install htop gnome-tweaks parcellite
 ```
 
-## Clone repository
+## Parcellite (optional)
 
-```bash
-git clone git@github.com:klacointe/dotfiles.git
-cd dotfiles
+Enable these options:
+
+- Use Primary (Selection)
+- Synchronize clipboards
+
+
+## Install a nerd font
+
+```
+ln -s /home/klacointe/dotfiles/fonts /home/klacointe/.fonts
+fc-cache -fv
 ```
 
-# Install
+NB: If you want another font: https://www.nerdfonts.com/font-downloads
 
-## Server
+## Git
 
-```bash
-make install_deps_server
-make symlinks_server
+```
+ln -s /home/klacointe/dotfiles/gitconfig /home/klacointe/.gitconfig
 ```
 
-## Laptop
 
-```bash
-make install_deps
-make symlinks
-make init_subtrees
+## Retrieve config files
+
+```
+git clone git@github.com:klacointe/dotfiles
 ```
 
-# Choose base16 theme
 
-```bash
-base16_porple
+## X
+
+```
+ln -s /home/klacointe/dotfiles/Xsession  /home/klacointe/.Xsession
+ln -s /home/klacointe/dotfiles/Xdefaults  /home/klacointe/.Xdefaults
+ln -s /home/klacointe/dotfiles/setxkbmaprc /home/klacointe/.setxkbmaprc
 ```
 
-# Editor
 
-## Install vim plugins
+## Terminal & Shell
 
-```bash
-vim .
-:PlugInstall
+```
+sudo apt install kitty zsh tmux
+
+ln -s /home/klacointe/dotfiles/kitty /home/klacointe/.config/kitty
+
+ln -s /home/klacointe/dotfiles/zsh/zshrc /home/klacointe/.zshrc
+ln -s /home/klacointe/dotfiles/zsh /home/klacointe/.zsh
+
+ln -s /home/klacointe/dotfiles/tmux/tmux.conf /home/klacointe/.tmux.conf
+
+sudo usermod -s /bin/zsh klacointe
 ```
 
-## Install neovim plugins
 
-```bash
-nvim .
-:PlugInstall
+## Neovim
+
+You'll need Neovim >= 0.10
+
+```
+sudo apt install fzf luarocks ripgrep fd-find
+```
+
+```
+sudo snap install nvim --classic
+ln -s /home/klacointe/.config/nvim /home/klacointe/dotfiles/nvim
+```
+
+
+## Languages
+
+```
+git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+
+asdf plugin add elixir
+asdf plugin add nodejs
+asdf plugin add ruby
+
+asdf install elixir latest
+asdf install nodejs latest
+asdf install ruby latest
+```
+
+
+## Window Manager
+
+### i3
+
+```
+sudo apt install i3 flameshot blueman
+ln -s /home/klacointe/dotfiles/i3 /home/klacointe/.config/i3
+```
+
+## Social
+
+```
+sudo snap install telegram-desktop
+sudo snap install discord
+sudo snap install slack
 ```

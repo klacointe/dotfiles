@@ -118,9 +118,10 @@ asdf install ruby latest
 ### i3
 
 ```
-sudo apt install i3 flameshot blueman
+sudo apt install i3 flameshot blueman pavucontrol xcalib
 ln -s /home/klacointe/dotfiles/i3 /home/klacointe/.config/i3
 ```
+
 
 ## Social
 

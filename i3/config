@@ -171,8 +171,8 @@ bindsym $mod+XF86AudioLowerVolume exec --no-startup-id pactl set-source-volume @
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle # mute micro
 
 ## Sreen brightness controls
-bindsym XF86MonBrightnessUp exec xbacklight -inc 10 # increase screen brightness
-bindsym XF86MonBrightnessDown exec xbacklight -dec 10 # decrease screen brightness
+bindsym XF86MonBrightnessUp exec xcalib -c # brightness control reset screen (100% brightness)
+bindsym XF86MonBrightnessDown exec xcalib -co 95 -a # decrease screen brightness
 
 # resize window (you can also use the mouse for that)
 mode "resize" {

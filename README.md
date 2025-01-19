@@ -104,11 +104,13 @@ ln -s /home/klacointe/.config/nvim /home/klacointe/dotfiles/nvim
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 
 asdf plugin add elixir
-asdf plugin add nodejs
-asdf plugin add ruby
-
 asdf install elixir latest
+
+asdf plugin add nodejs
 asdf install nodejs latest
+
+sudo apt install zlib1g libffi-dev libyaml-dev libpq-dev
+asdf plugin add ruby
 asdf install ruby latest
 ```
 

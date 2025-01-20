@@ -26,24 +26,7 @@ alias ack="ack --page='less -r'"
 
 alias reload_xdefaults="xrdb ~/.Xdefaults"
 
-alias gourmand="du --max-depth=1 . | sort -n -r"
-
-alias freeboxtv="vlc --avcodec-hw=vaapi http://mafreebox.freebox.fr/freeboxtv/playlist.m3u &"
-
 alias caps_lock="xdotool key Caps_Lock"
-
-alias json_view="python -m json.tool"
-
-alias no_blank_screen="xset dpms 0 0 0 && xset s noblank  && xset s off"
-
-# when change /etc/default/keyboard
-alias reload_keyboard="udevadm trigger --subsystem-match=input --action=change"
-
-function ssh_jump() {
-  ssh -A -J $1 -o "UserKnownHostsFile=/dev/null" -o "StrictHostKeyChecking=no" $2
-}
-
-alias database_size="PGPASSWORD=wttj watch -c \"psql -U wttj -d postgres -c 'SELECT pg_database.datname as database_name, pg_size_pretty(pg_database_size(pg_database.datname)), pg_database_size(pg_database.datname) as size FROM pg_database ORDER by size DESC;'\""
 
 alias gnome_dark="gsettings set org.gnome.desktop.interface color-scheme prefer-dark"
 alias gnome_light="gsettings set org.gnome.desktop.interface color-scheme prefer-light"

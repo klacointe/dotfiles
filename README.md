@@ -12,7 +12,7 @@ Codename: noble
 ## Install packages
 
 ```sh
-sudo apt install make gcc git curl
+sudo apt install make gcc g++ git curl
 ```
 
 Optional:

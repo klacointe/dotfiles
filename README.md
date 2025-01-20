@@ -18,7 +18,7 @@ sudo apt install make gcc git curl
 Optional:
 
 ```sh
-sudo apt install htop gnome-tweaks parcellite pulseaudio-utils
+sudo apt install htop gnome-tweaks parcellite pulseaudio-utils inotify-tools
 ```
 
 ## Parcellite (optional)
@@ -84,8 +84,13 @@ sudo usermod -s /bin/zsh klacointe
 ```sh
 git clone https://github.com/asdf-vm/asdf.git ~/.asdf
 
+asdf plugin add erlang
+asdf install elixir erlang
+asdf global erlang latest
+
 asdf plugin add elixir
 asdf install elixir latest
+asdf global elixir latest
 
 asdf plugin add nodejs
 asdf install nodejs latest
@@ -126,6 +131,12 @@ ln -s /home/klacointe/dotfiles/i3 /home/klacointe/.config/i3
 sudo snap install telegram-desktop
 sudo snap install discord
 sudo snap install slack
+```
+
+## Nginx
+
+```sh
+sudo apt install nginx-extras
 ```
 
 ## Databases

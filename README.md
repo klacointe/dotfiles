@@ -18,7 +18,7 @@ sudo apt install make gcc g++ git curl
 Optional:
 
 ```sh
-sudo apt install htop gnome-tweaks parcellite pulseaudio-utils inotify-tools
+sudo apt install htop gnome-tweaks parcellite pulseaudio-utils inotify-tools tig
 ```
 
 ## Parcellite (optional)

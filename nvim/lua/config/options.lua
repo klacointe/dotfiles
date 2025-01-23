@@ -5,3 +5,4 @@ vim.wo.number = true
 vim.opt.relativenumber = false
 -- vim.opt.signcolumn = "no"
 vim.g.lazyvim_ruby_formatter = "standardrb"
+vim.g.mkdp_theme = "dark"

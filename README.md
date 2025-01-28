@@ -77,6 +77,10 @@ ln -s /home/klacointe/dotfiles/zsh /home/klacointe/.zsh
 ln -s /home/klacointe/dotfiles/tmux/tmux.conf /home/klacointe/.tmux.conf
 
 sudo usermod -s /bin/zsh klacointe
+
+asdf plugin add fzf
+asdf install fzf latest
+asdf global fzf latest
 ```
 
 ## Languages
@@ -169,4 +173,21 @@ psql -U postres
 ```sh
 sudo apt install redis
 redis-cli
+```
+
+## Games
+
+### Steam
+
+```sh
+sudo snap install steam
+```
+
+### Steam Link :x:
+
+```sh
+sudo apt install flatpak
+flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+flatpak install flathub com.valvesoftware.SteamLink
+flatpak run com.valvesoftware.SteamLink
 ```

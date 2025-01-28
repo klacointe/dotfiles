@@ -37,4 +37,6 @@ alias git_clean_merged='git branch --merged | grep -Ev "(^\*|master|main)" | xar
 
 alias off!='killall ruby node webpack nvim beam.smp'
 
-alias fwupdate='fwupdmgr refresh && fwupdmgr update'
+alias fwupdate='fwupdmgr refresh --force && fwupdmgr update'
+
+alias ip!='echo "ipv4: "; dig -4 +short myip.opendns.com @resolver1.opendns.com; echo "ipv6: "; dig +short -6 myip.opendns.com aaaa @resolver1.ipv6-sandbox.opendns.com'

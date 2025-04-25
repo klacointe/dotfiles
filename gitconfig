@@ -36,6 +36,7 @@
   autosetuprebase = always
 [push]
   default = tracking
+  autoSetupRemote = true
 [web]
   browser = chromium
 [status]

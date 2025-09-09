@@ -26,6 +26,30 @@ require("lazy").setup({
         scroll = { enabled = false },
       },
     },
+    {
+      "olimorris/codecompanion.nvim",
+      dependencies = {
+        "nvim-lua/plenary.nvim",
+        "nvim-treesitter/nvim-treesitter",
+      },
+      opts = {
+        opts = {
+          -- Set debug logging
+          log_level = "DEBUG",
+        },
+      },
+    },
+    -- TO CHECK
+    {
+      "echasnovski/mini.diff",
+      config = function()
+        local diff = require("mini.diff")
+        diff.setup({
+          -- Disabled by default
+          source = diff.gen_source.none(),
+        })
+      end,
+    },
   },
   defaults = {
     -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.

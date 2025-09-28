@@ -191,3 +191,25 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 flatpak install flathub com.valvesoftware.SteamLink
 flatpak run com.valvesoftware.SteamLink
 ```
+
+```
+cat /usr/local/bin/steamlink
+#!/bin/sh
+
+flatpak run com.valvesoftware.SteamLink
+```
+
+### yuki-iptv
+
+```sh
+sudo apt install flatpak
+flatpak install flathub yuki-iptv
+flatpak run io.github.yuki_iptv.yuki-iptv
+```
+
+```
+cat /usr/local/bin/yuki-iptv
+#!/bin/sh
+
+flatpak run io.github.yuki_iptv.yuki-iptv
+```

@@ -37,8 +37,9 @@ set $ws1 1:term
 set $ws2 2:www
 set $ws5 5:slack
 set $ws6 6:chat
-set $ws7 7:settings
+set $ws7 7:video
 set $ws8 8:misc
+set $ws9 9:settings
 
 workspace $ws1 output HDMI-1
 workspace $ws2 output HDMI-1
@@ -54,8 +55,11 @@ assign [class="Slack"] $ws5
 assign [class="Mumble"] $ws6
 assign [class="Telegram"] $ws6
 assign [class="discord"] $ws6
-assign [class="Gnome-control-center"] $ws7
-assign [class="Pavucontrol"] $ws7
+assign [class="whatsapp-desktop-client"] $ws6
+assign [class="vlc"] $ws7
+assign [class="yuki-iptv"] $ws7
+assign [class="Gnome-control-center"] $ws9
+assign [class="Pavucontrol"] $ws9
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod

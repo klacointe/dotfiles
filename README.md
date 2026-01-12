@@ -85,11 +85,11 @@ asdf global fzf latest
 
 ## Languages
 
-```sh
-git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+Download asdf bin from https://github.com/asdf-vm/asdf/releases
 
+```sh
 asdf plugin add erlang
-asdf install elixir erlang
+asdf install erlang latest
 asdf global erlang latest
 
 asdf plugin add elixir

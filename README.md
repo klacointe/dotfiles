@@ -78,14 +78,19 @@ ln -s /home/klacointe/dotfiles/tmux/tmux.conf /home/klacointe/.tmux.conf
 
 sudo usermod -s /bin/zsh klacointe
 
-asdf plugin add fzf
-asdf install fzf latest
-asdf global fzf latest
+git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
+~/.fzf/install
 ```
 
 ## Languages
 
 Download asdf bin from https://github.com/asdf-vm/asdf/releases
+
+Add this to ~/.zsh/zshrc
+
+```sh
+export PATH="${ASDF_DATA_DIR:-HOME/.asdf}/shims:$PATH"
+```
 
 ```sh
 asdf plugin add erlang

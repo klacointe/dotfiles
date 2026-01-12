@@ -20,12 +20,19 @@ antigen theme simple
 antigen apply
 
 # 3rd party integrations
-source <(~/.asdf/shims/fzf --zsh)
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+#source <(fzf --zsh)
+#source <(~/.asdf/shims/fzf --zsh)
 #[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
-[ -f ~/.asdf/completions/asdf.bash ] && source ~/.asdf/completions/asdf.bash
+#[ -f ~/.asdf/asdf.sh ] && source ~/.asdf/asdf.sh
+#[ -f ~/.asdf/completions/asdf.bash ] && source ~/.asdf/completions/asdf.bash
 [ -f ~/.zsh/tmuxinator.zsh ] && source ~/.zsh/tmuxinator.zsh
 
 
 # elixir history
 export ERL_AFLAGS="-kernel shell_history enabled"
+
+# opencode
+export PATH=/home/klacointe/.opencode/bin:$PATH
+

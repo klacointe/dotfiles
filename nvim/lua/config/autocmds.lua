@@ -12,8 +12,9 @@ vim.api.nvim_create_autocmd({ "FileType" }, {
 
 -- Set textwidth for markdown files
 vim.api.nvim_create_autocmd({ "FileType" }, {
-  pattern = { "markdown" },
+  pattern = { "markdown", "txt" },
   callback = function()
     vim.opt_local.textwidth = 80
+    vim.opt_local.spell = false
   end,
 })

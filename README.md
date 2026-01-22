@@ -122,7 +122,7 @@ npm install markdownlint-cli2 --global
 
 ```sh
 sudo snap install nvim --classic
-ln -s /home/klacointe/.config/nvim /home/klacointe/dotfiles/nvim
+ln -s /home/klacointe/dotfiles/nvim /home/klacointe/.config/nvim
 ```
 
 ## Window Manager

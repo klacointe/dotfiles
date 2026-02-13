@@ -84,7 +84,7 @@ git clone --depth 1 https://github.com/junegunn/fzf.git ~/.fzf
 
 ## Languages
 
-Download asdf bin from https://github.com/asdf-vm/asdf/releases
+Download asdf bin from <https://github.com/asdf-vm/asdf/releases>
 
 Add this to ~/.zsh/zshrc
 
@@ -116,7 +116,7 @@ asdf global ruby latest
 You'll need Neovim >= 0.10
 
 ```sh
-sudo apt install fzf luarocks ripgrep fd-find
+sudo apt install fzf luarocks ripgrep fd-find python3-venv
 npm install markdownlint-cli2 --global
 ```
 

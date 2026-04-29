@@ -4,7 +4,7 @@
 
 -- issue with helm-chart repo formatting
 vim.api.nvim_create_autocmd({ "FileType" }, {
-  pattern = { "yaml" },
+  pattern = { "yaml", "python" },
   callback = function()
     vim.b.autoformat = false
   end,

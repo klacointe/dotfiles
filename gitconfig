@@ -26,6 +26,7 @@
   editor = nvim
   whitespace = trailing-space,space-before-tab
   attributesfile = /home/klacointe/.gitattributes
+	excludesfile = /home/klacointe/.gitignore
 [diff]
   renames = true
   submodule = log

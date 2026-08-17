@@ -1,0 +1,69 @@
+#!/bin/zsh
+# Nicely formatted CPU/GPU/NVMe/battery temperature and fan report (via lm-sensors)
+
+if ! command -v sensors >/dev/null 2>&1; then
+  if ! command -v apt-get >/dev/null 2>&1; then
+    echo "lm-sensors is not installed and apt-get is unavailable to install it automatically." >&2
+    exit 1
+  fi
+  echo "lm-sensors not found, installing it now (requires sudo)..." >&2
+  sudo apt-get update && sudo apt-get install -y lm-sensors
+  echo "Detecting sensor chips (requires sudo)..." >&2
+  sudo sensors-detect --auto
+fi
+
+if ! sensors >/dev/null 2>&1 || sensors 2>&1 | grep -q "No sensors found"; then
+  echo "No sensor chips detected yet, running sensors-detect (requires sudo)..." >&2
+  sudo sensors-detect --auto
+fi
+
+autoload -Uz colors && colors
+
+color_for_temp() {
+  local t=$1
+  if (( t >= 90 )); then
+    echo -n "$fg_bold[red]"
+  elif (( t >= 70 )); then
+    echo -n "$fg_bold[yellow]"
+  else
+    echo -n "$fg_bold[green]"
+  fi
+}
+
+# sensors output is a sequence of blocks:
+#   <chip name>
+#   Adapter: <adapter>
+#   <data line>...
+#   <blank line>
+state="header"
+
+sensors | while IFS= read -r line; do
+  if [ -z "$line" ]; then
+    echo
+    state="header"
+    continue
+  fi
+
+  if [ "$state" = "header" ]; then
+    printf "%s%s%s\n" "$fg_bold[cyan]" "$line" "$reset_color"
+    state="adapter"
+    continue
+  fi
+
+  if [ "$state" = "adapter" ]; then
+    state="data"
+    continue
+  fi
+
+  if [[ "$line" == *"°C"* ]]; then
+    temp=$(echo "$line" | grep -oE '[+-][0-9]+\.[0-9]°C' | head -1 | tr -d '+°C')
+    temp_int=${temp%%.*}
+    temp_int=${temp_int#-}
+    color=$(color_for_temp "${temp_int:-0}")
+    printf "  %s%s%s\n" "$color" "$line" "$reset_color"
+  elif [[ "$line" == *"RPM"* ]]; then
+    printf "  %s%s%s\n" "$fg_bold[blue]" "$line" "$reset_color"
+  else
+    printf "  %s\n" "$line"
+  fi
+done

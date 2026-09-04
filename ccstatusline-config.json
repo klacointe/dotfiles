@@ -1,0 +1,114 @@
+{
+  "version": 4,
+  "lines": [
+    [
+      {
+        "id": "1",
+        "type": "model",
+        "color": "cyan",
+        "rawValue": true,
+        "merge": "no-padding"
+      },
+      {
+        "id": "f1fa93f9-7c70-43da-bed2-4f457b4b20fe",
+        "type": "custom-symbol",
+        "backgroundColor": "bgWhite",
+        "customSymbol": "/",
+        "merge": "no-padding"
+      },
+      {
+        "id": "bd5c02c1-62d6-44bd-b3c5-96f22641b3a2",
+        "type": "thinking-effort",
+        "backgroundColor": "bgCyan",
+        "rawValue": true
+      },
+      {
+        "id": "3",
+        "type": "context-length",
+        "color": "brightBlack",
+        "rawValue": true
+      },
+      {
+        "id": "f617ec74-dd5d-4295-a2db-4ec52ac05c15",
+        "type": "current-working-dir",
+        "backgroundColor": "bgRed",
+        "rawValue": true
+      },
+      {
+        "id": "5",
+        "type": "git-branch",
+        "color": "magenta",
+        "rawValue": false
+      },
+      {
+        "id": "f85d3bce-324b-438d-b43f-6dd80f5127a0",
+        "type": "session-usage",
+        "backgroundColor": "bgBrightMagenta",
+        "rawValue": false,
+        "merge": "no-padding"
+      },
+      {
+        "id": "5e7d91d0-d473-4594-9cbf-96914470a2f7",
+        "type": "custom-symbol",
+        "backgroundColor": "bgBrightBlack",
+        "customSymbol": "/",
+        "merge": "no-padding"
+      },
+      {
+        "id": "abbb96d3-46db-4cc4-a7e0-a509653c98ca",
+        "type": "reset-timer",
+        "backgroundColor": "bgBrightBlue",
+        "rawValue": true
+      },
+      {
+        "id": "d2843099-b2c7-4fc6-bb03-f6d443069de2",
+        "type": "weekly-usage",
+        "backgroundColor": "bgWhite",
+        "rawValue": false,
+        "merge": "no-padding"
+      },
+      {
+        "id": "0e43fbeb-4d12-4918-8d06-26a93087a0c4",
+        "type": "custom-text",
+        "backgroundColor": "bgCyan",
+        "customText": "/",
+        "merge": "no-padding"
+      },
+      {
+        "id": "82dcd6b5-6193-4ed5-b165-05aed27fbe31",
+        "type": "weekly-reset-timer",
+        "backgroundColor": "bgBrightRed",
+        "rawValue": true
+      }
+    ],
+    []
+  ],
+  "flexMode": "full-minus-40",
+  "compactThreshold": 60,
+  "colorLevel": 2,
+  "defaultPadding": " ",
+  "defaultPaddingSide": "both",
+  "inheritSeparatorColors": false,
+  "globalBold": false,
+  "gitCacheTtlSeconds": 5,
+  "minimalistMode": false,
+  "powerline": {
+    "enabled": true,
+    "separators": [
+      ""
+    ],
+    "separatorInvertBackground": [
+      false
+    ],
+    "startCaps": [],
+    "endCaps": [],
+    "theme": "minimal",
+    "autoAlign": true,
+    "continueThemeAcrossLines": true
+  },
+  "installation": {
+    "method": "auto-update",
+    "packageManager": "npm"
+  },
+  "exportedBy": "2.2.29"
+}

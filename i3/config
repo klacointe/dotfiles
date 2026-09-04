@@ -228,6 +228,7 @@ exec --no-startup-id blueman-applet
 #exec --no-startup-id xrandr --output eDP-1 --mode 1680x1050
 exec --no-startup-id flameshot
 #exec --no-startup-id polychromatic-tray-applet
+exec --no-startup-id warp-taskbar
 
 # Keyboard mapping
 

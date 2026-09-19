@@ -218,3 +218,41 @@ cat /usr/local/bin/yuki-iptv
 
 flatpak run io.github.yuki_iptv.yuki-iptv
 ```
+
+### IPTVnator
+
+Install the native `.deb` — **not** the snap. The snap is strictly confined, so
+AppArmor denies the exec and external players (MPV/VLC) never start.
+
+```sh
+make install_iptvnator
+```
+
+The script installs the latest release, migrates data from the snap if it finds
+any, enables the embedded-MPV frame-copy engine (required for the embedded
+player on Wayland) and installs the menu entry.
+
+#### Re-create the Xtream playlist
+
+The database is **not versioned**: it stores the Xtream credentials in clear
+text. Re-create the playlist by hand instead — it takes a minute:
+
+1. **Add playlist** → **Xtream Codes** tab
+2. Fill in **Playlist title**, **Server URL** (`http://host:port`, no trailing
+   path), **Username**, **Password**
+3. Submit, then let the import finish — live, movies and series are fetched
+   separately and the UI stays partly empty until each completes
+
+Then pick a player that can actually decode the streams:
+
+- **Settings** → **Video player** → **Embedded MPV** (or **MPV** for an
+  external window). The default `Video.js` fails on most provider codecs.
+
+Local data, for reference:
+
+```sh
+~/.iptvnator/databases/iptvnator.db   # playlists, EPG, favourites (credentials!)
+~/.config/IPTVnator/config.json       # player paths, frame-copy flag
+~/.config/IPTVnator/IndexedDB/        # UI settings (player, language, theme)
+~/.config/IPTVnator/Cache/            # disposable, grows to >1 GB
+```

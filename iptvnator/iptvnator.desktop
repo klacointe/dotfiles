@@ -1,0 +1,13 @@
+[Desktop Entry]
+Name=IPTVnator
+GenericName=IPTV Player
+Exec=/opt/IPTVnator/iptvnator --ozone-platform-hint=auto %U
+Terminal=false
+Type=Application
+Icon=iptvnator
+StartupWMClass=iptvnator
+StartupNotify=true
+Comment=IPTV player application.
+MimeType=audio/x-mpegurl;application/vnd.apple.mpegurl;
+Categories=AudioVideo;Video;Player;TV;
+Keywords=IPTV;M3U;Xtream;TV;Stream;Player;iptvnator;

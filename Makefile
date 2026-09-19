@@ -73,3 +73,6 @@ update_subtrees:
 	-git subtree pull --prefix=base16-shell --squash https://github.com/chriskempson/base16-shell master
 	-git subtree pull --prefix=fonts --squash https://github.com/powerline/fonts master
 	-[ -d ~/dotfiles/fonts ] && ~/dotfiles/fonts/install.sh
+
+install_iptvnator:
+	-~/dotfiles/bin/install_iptvnator

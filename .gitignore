@@ -9,8 +9,8 @@
 /fonts/.uuid
 /fonts/*/.uuid
 
-# IPTVnator : la base contient les identifiants Xtream EN CLAIR
-# (table playlists : serverUrl, username, password) — ne jamais versionner.
+# IPTVnator: the database stores Xtream credentials in CLEAR TEXT
+# (playlists table: serverUrl, username, password) — never version it.
 *.db
 *.db-wal
 *.db-shm

@@ -51,6 +51,64 @@ ln -s /home/klacointe/dotfiles/gitconfig /home/klacointe/.gitconfig
 git clone git@github.com:klacointe/dotfiles
 ```
 
+## Secrets
+
+This repo is **public**. Nothing secret goes in it. Four layers make that hold,
+and the first thing to do after a fresh clone is to arm the local two:
+
+```sh
+make secrets_setup   # installs gitleaks into ~/bin + enables the git hooks
+```
+
+`core.hooksPath` is local git config, so it is not carried by the clone — that
+`make` target has to be run on every machine.
+
+### The layers
+
+| Layer | What it does | Where |
+| --- | --- | --- |
+| `.gitignore` | Keeps credential files from being picked up by `git add .` | `.gitignore` |
+| `pre-commit` | Blocks the commit if gitleaks finds a secret in the index | `githooks/pre-commit` |
+| `pre-push` | Blocks the push if a secret is in the outgoing commits | `githooks/pre-push` |
+| GitHub | Secret scanning + push protection, rejects the push server-side | repo settings |
+| CI | Full-history gitleaks scan on every push and weekly | `.github/workflows/gitleaks.yml` |
+
+The local hooks fail closed: no gitleaks binary means no commit and no push.
+GitHub's push protection and the CI job are the backstop for anything pushed
+with `--no-verify`, from another machine, or by another git client.
+
+### Where sensitive values go instead
+
+Not in this repo. Either in the tool's own credential store outside the repo
+(`~/.aws/credentials`, `~/.netrc`, the keyring), or in a file that stays local:
+anything named `*.local` or placed under `private/` is gitignored. Reference it
+from a versioned config rather than inlining the value — the way `zsh/env.zsh`
+reads AWS keys through `aws configure get` instead of hardcoding them.
+
+### Scanning by hand
+
+```sh
+make scan            # working tree, including untracked files
+make scan_history    # the whole history
+```
+
+### If a secret does get pushed
+
+Rotate it first, rewrite history second. Once it has reached a public repo,
+assume it is already scraped — rewriting the history does not un-leak it, and
+forks, caches and the GitHub events API keep copies.
+
+1. **Rotate the credential immediately.** This is the only step that matters.
+2. Remove it from the history (`git filter-repo`), then force-push.
+3. Ask GitHub Support to flush cached views of the old commits if it was
+   high-value.
+
+### Known false positive
+
+`tmux/plugins/tmux-copycat/docker_ssh.key` is a throwaway test key vendored
+from upstream in 2015. It is allowlisted in `.gitleaks.toml` and grants access
+to nothing.
+
 ## X
 
 ```sh

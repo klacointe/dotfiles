@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Block the push if gitleaks finds a secret in the commits being sent.
+# Catches whatever slipped past pre-commit (--no-verify, another tool, a rebase).
+# Bypass: git push --no-verify
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-push: gitleaks not found — push blocked." >&2
+  echo "          Install it with: make install_gitleaks" >&2
+  exit 1
+fi
+
+zero="$(git hash-object --stdin </dev/null | tr '[0-9a-f]' '0')"
+status=0
+
+# stdin: <local ref> <local sha> <remote ref> <remote sha>
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue   # branch deletion
+
+  if [ "$remote_sha" = "$zero" ]; then
+    # New branch: scan whatever is not on any other remote ref yet.
+    log_opts="$local_sha --not --remotes"
+  else
+    log_opts="$remote_sha..$local_sha"
+  fi
+
+  if ! gitleaks git --no-banner --log-opts="$log_opts" .; then
+    status=1
+  fi
+done
+
+if [ "$status" -ne 0 ]; then
+  cat >&2 <<'MSG'
+
+pre-push: secret detected in the commits being pushed — push blocked.
+
+Do not force the push: the secret is already in your local history. Rewrite the
+offending commits (git rebase -i, or git filter-repo) BEFORE pushing. If it has
+already been pushed, treat it as compromised and rotate it.
+
+MSG
+  exit 1
+fi

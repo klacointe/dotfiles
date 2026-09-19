@@ -76,3 +76,31 @@ update_subtrees:
 
 install_iptvnator:
 	-~/dotfiles/bin/install_iptvnator
+
+# --- Credential leak protection --------------------------------------------
+
+GITLEAKS_VERSION := 8.30.1
+
+install_gitleaks:
+	curl -sSfL -o /tmp/gitleaks.tar.gz "https://github.com/gitleaks/gitleaks/releases/download/v$(GITLEAKS_VERSION)/gitleaks_$(GITLEAKS_VERSION)_linux_x64.tar.gz"
+	tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+	mkdir -p ~/bin && install -m 755 /tmp/gitleaks ~/bin/gitleaks
+	~/bin/gitleaks version
+
+# core.hooksPath is local config, not versioned: re-run this on every machine
+# and after every fresh clone.
+install_hooks:
+	git -C ~/dotfiles config core.hooksPath githooks
+	@echo "hooks enabled: $$(git -C ~/dotfiles config core.hooksPath)"
+
+secrets_setup: install_gitleaks install_hooks
+
+# Scan the working tree (including untracked files).
+scan:
+	gitleaks dir --no-banner -v .
+
+# Scan the whole history.
+scan_history:
+	gitleaks git --no-banner -v .
+
+.PHONY: install_gitleaks install_hooks secrets_setup scan scan_history

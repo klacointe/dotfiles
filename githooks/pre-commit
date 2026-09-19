@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Block the commit if gitleaks finds a secret in the index.
+# Bypass (only if you know what you are doing): git commit --no-verify
+set -euo pipefail
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks not found — commit blocked." >&2
+  echo "            Install it with: make install_gitleaks" >&2
+  exit 1
+fi
+
+if ! gitleaks git --staged --no-banner .; then
+  cat >&2 <<'MSG'
+
+pre-commit: secret detected in staged files — commit blocked.
+
+  - False positive? Add an exception to .gitleaks.toml, or a trailing
+    `gitleaks:allow` annotation on the offending line.
+  - Real secret? Move it out of the repo (see the Secrets section in README).
+
+MSG
+  exit 1
+fi

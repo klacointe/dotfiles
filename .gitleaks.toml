@@ -1,0 +1,17 @@
+# Gitleaks config for this public repo.
+# Used by the local hooks (githooks/) and by CI (.github/workflows/gitleaks.yml).
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Known false positives"
+# Throwaway test key from the tmux-copycat plugin, vendored via subtree in 2015.
+# It is public in the upstream repo (tmux-plugins/tmux-copycat), only feeds its
+# Docker test harness, and grants access to nothing.
+# Both paths are listed: the current one, and the original one (the subtree
+# squash commit placed the file at the repo root).
+paths = [
+  '''^tmux/plugins/tmux-copycat/docker_ssh\.key$''',
+  '''^docker_ssh\.key$''',
+]

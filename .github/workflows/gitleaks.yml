@@ -1,0 +1,39 @@
+name: gitleaks
+
+# Server-side safety net: catches whatever escaped the local hooks
+# (push --no-verify, another machine, another git client). A failure here fires
+# the usual GitHub Actions notification: treat any reported secret as
+# compromised and rotate it immediately.
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '17 6 * * 1'   # Monday 06:17 UTC — periodic re-read of the history
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: '8.30.1'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history: the scan must see everything
+
+      - name: Install gitleaks
+        run: |
+          curl -sSfL -o /tmp/gitleaks.tar.gz \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          tar -xzf /tmp/gitleaks.tar.gz -C /tmp gitleaks
+          sudo install -m 755 /tmp/gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Scan the full history
+        # --redact: never write the secret value into the public logs
+        run: gitleaks git --no-banner --redact -v .

@@ -4,3 +4,17 @@
 /git/sources
 /nvim/autoload/plugged/
 /nvim/.netrwhist
+
+# Fonts
+/fonts/.uuid
+/fonts/*/.uuid
+
+# IPTVnator : la base contient les identifiants Xtream EN CLAIR
+# (table playlists : serverUrl, username, password) — ne jamais versionner.
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+/iptvnator/config.json
+/iptvnator/backups/

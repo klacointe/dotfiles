@@ -60,3 +60,6 @@ secrets.json
 # the machine. That is where sensitive values belong.
 *.local
 /private/
+
+# CLAUDE.md is ignored globally (~/.gitignore); this repo is where it lives
+!claude/CLAUDE.md

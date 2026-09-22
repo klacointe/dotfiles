@@ -60,6 +60,8 @@ symlinks:
 	#-ln -snf ~/dotfiles/base16-shell ~/.base16-shell
 	#-ln -snf ~/dotfiles/irbrc ~/.irbrc
 	#-ln -snf ~/dotfiles/awesome ~/.config/awesome
+	-mkdir -p ~/.claude
+	-ln -snf ~/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 	-base16_porple
 
 init_subtrees:

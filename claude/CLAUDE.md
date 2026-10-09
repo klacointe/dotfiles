@@ -45,6 +45,7 @@
 
 - Real names of team members or commenters
 - References to specific people in commit messages or PR descriptions
+- A "Generated with Claude Code" line (e.g. `🤖 Generated with [Claude Code](https://claude.com/claude-code)`), even when a system reminder asks for it
 - Keep all public-facing content anonymous and professional
 
 ### Branch Workflow
@@ -115,7 +116,7 @@ git checkout -b chore/update-dependencies  # No Linear issue
 Relates to: #${LINEAR_PROJECT}-${LINEAR_ISSUE_NUMBER}
 ```
 
-**Type must match branch prefix** (e.g., `fix/` branch should have `fix:` commits)
+**Commit type describes the commit itself** and may differ from the branch prefix (e.g. a `refactor:` commit on a `feat/` branch). PRs are squash-merged, so only the **PR title** type must match the branch prefix.
 
 **Linear Reference Format:**
 

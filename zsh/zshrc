@@ -36,3 +36,6 @@ export ERL_AFLAGS="-kernel shell_history enabled"
 # opencode
 export PATH=/home/klacointe/.opencode/bin:$PATH
 
+
+# Added by the Hunk installer (https://hunk.dev)
+export PATH='/home/klacointe/.hunk/bin':"$PATH"

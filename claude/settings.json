@@ -1,0 +1,24 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/dotfiles/claude/statusline-command.sh",
+    "padding": 0,
+    "refreshInterval": 10
+  },
+  "enabledPlugins": {
+    "ruby-lsp@claude-plugins-official": true,
+    "code-review@claude-plugins-official": true,
+    "skill-creator@claude-plugins-official": true,
+    "chrome-devtools-mcp@claude-plugins-official": true,
+    "coderabbit@claude-plugins-official": true
+  },
+  "dialogExpiry": "60s",
+  "theme": "auto",
+  "verbose": false,
+  "worktree": {
+    "bgIsolation": "none"
+  },
+  "switchModelsOnFlag": false,
+  "skipWorkflowUsageWarning": true,
+  "skipDangerousModePermissionPrompt": true
+}

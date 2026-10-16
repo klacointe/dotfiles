@@ -183,6 +183,47 @@ sudo snap install nvim --classic
 ln -s /home/klacointe/dotfiles/nvim /home/klacointe/.config/nvim
 ```
 
+## Claude Code
+
+Everything lives in `claude/`. `CLAUDE.md` is symlinked by `make symlinks`; the
+rest is applied by hand because Claude Code and other tools keep writing to
+its config files.
+
+| File | What it is |
+| --- | --- |
+| `CLAUDE.md` | Global instructions, symlinked to `~/.claude/CLAUDE.md` |
+| `settings.json` | Curated, portable subset of `~/.claude/settings.json` |
+| `apply.sh` | Merges `settings.json` into `~/.claude/settings.json` |
+| `statusline-command.sh` | Status line script, referenced from `settings.json` |
+| `mcp-servers.sh` | Registers personal MCP servers at user scope |
+
+Apply the settings (needs `jq`):
+
+```sh
+bash ~/dotfiles/claude/apply.sh
+```
+
+Keys from the repo win, keys only present locally are kept, and the previous
+file is saved as `~/.claude/settings.json.bak`. Machine-specific keys stay out
+of the repo on purpose: `hooks` (written by Orca/herdr installers) and `autoMode`
+(contains work repo details). To version a new setting, add it
+to `claude/settings.json` and re-run the script.
+
+Register the MCP servers:
+
+```sh
+bash ~/dotfiles/claude/mcp-servers.sh
+```
+
+Each server's environment is read from `private/mcp/<server>.env` (one
+`KEY=value` per line), which is gitignored (see [Secrets](#secrets)). Copy
+those files over from a previous machine; the script stops if one is missing.
+Work MCP servers are not listed here; add them by hand with
+`claude mcp add --scope user`.
+
+`~/.claude.json` is never versioned: it holds the login session, MCP secrets
+and per-project state, and Claude Code rewrites it constantly.
+
 ## Window Manager
 
 ### i3

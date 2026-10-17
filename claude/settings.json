@@ -20,5 +20,9 @@
   },
   "switchModelsOnFlag": false,
   "skipWorkflowUsageWarning": true,
-  "skipDangerousModePermissionPrompt": true
+  "skipDangerousModePermissionPrompt": true,
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  }
 }

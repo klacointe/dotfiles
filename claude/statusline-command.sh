@@ -92,13 +92,12 @@ if [ -n "$RESETS_7D" ]; then
 fi
 
 
-echo -e "${CYAN}🤖 $MODEL${RESET} | 💰 ${YELLOW}${COST_FMT}${RESET} | 🪙 ${CTX_COLOR}${BAR} ${PCT}% ${TOK_FMT}${RESET} | ⏱️${DUR_FMT}"
-echo -e "${RATE_INFO}${RATE_7D_INFO}"
-
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
 WORKTREE=$(echo "$input" | jq -r '.worktree // empty')
-
 WORKTREE_INFO=""
 [ -n "$WORKTREE" ] && WORKTREE_INFO=" | 🌳 $WORKTREE"
 
-echo -e "📁 ${DIR##*/}${WORKTREE_INFO}"
+OUT="📁 ${DIR##*/}${WORKTREE_INFO} | ${CYAN}🤖 $MODEL${RESET} | 💰 ${YELLOW}${COST_FMT}${RESET} | 🪙 ${CTX_COLOR}${BAR} ${PCT}% ${TOK_FMT}${RESET} | ⏱️${DUR_FMT}"
+[ -n "$RATE_INFO" ] && OUT="${OUT} | ${RATE_INFO}"
+OUT="${OUT}${RATE_7D_INFO}"
+echo -e "$OUT"

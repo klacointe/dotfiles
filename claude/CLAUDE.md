@@ -4,6 +4,14 @@
 
 > **OPERATIONAL SAFETY OVERRIDE:** ALWAYS ASK FOR EXPLICIT APPROVAL BEFORE ANY ACTION THAT MODIFIES STATE (local or remote). NEVER EXECUTE COMMANDS, EDIT FILES, COMMIT, PUSH, OR UPDATE EXTERNAL SYSTEMS WITHOUT USER CONFIRMATION FIRST. Ask for confirmation before each individual state-changing action (do not batch implicit approvals).
 
+## Existing Issues First
+
+**ALWAYS check for existing issues before opening a new one or implementing a fix:**
+
+- Search the tracker (Linear, GitHub issues/PRs) for an existing issue or PR covering the same problem
+- If one exists, reuse/link it instead of creating a duplicate or starting a parallel fix
+- Applies before proposing new Linear issues (still ask approval first) and before starting any fix
+
 ## Version Control Rules
 
 ### Git Operations

@@ -93,7 +93,7 @@ fi
 
 
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
-WORKTREE=$(echo "$input" | jq -r '.worktree // empty')
+WORKTREE=$(echo "$input" | jq -r '.worktree | if type=="object" then .name else . end // empty')
 WORKTREE_INFO=""
 [ -n "$WORKTREE" ] && WORKTREE_INFO=" | 🌳 $WORKTREE"
 

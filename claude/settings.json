@@ -5,12 +5,21 @@
     "padding": 0,
     "refreshInterval": 10
   },
+  "extraKnownMarketplaces": {
+    "claude-community": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-community"
+      }
+    }
+  },
   "enabledPlugins": {
     "ruby-lsp@claude-plugins-official": true,
     "code-review@claude-plugins-official": true,
     "skill-creator@claude-plugins-official": true,
     "chrome-devtools-mcp@claude-plugins-official": true,
-    "coderabbit@claude-plugins-official": true
+    "coderabbit@claude-plugins-official": true,
+    "next-steps@claude-community": true
   },
   "dialogExpiry": "60s",
   "theme": "auto",

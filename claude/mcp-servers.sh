@@ -19,5 +19,4 @@ add() {
     claude mcp add --scope user "$name" "${env_args[@]}" -- "$@"
 }
 
-add circleci-mcp-server npx -y @circleci/mcp-server-circleci@latest
 add mealie uv tool run --from git+https://github.com/rldiao/mealie-mcp-server mealie-mcp-server

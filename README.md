@@ -221,6 +221,10 @@ those files over from a previous machine; the script stops if one is missing.
 Work MCP servers are not listed here; add them by hand with
 `claude mcp add --scope user`.
 
+CircleCI uses the hosted claude.ai connector (`https://mcp.circleci.com/v1/mcp`):
+authenticate once with `/mcp`. Nothing is registered here, because the connector
+is tied to the claude.ai account.
+
 `~/.claude.json` is never versioned: it holds the login session, MCP secrets
 and per-project state, and Claude Code rewrites it constantly.
 

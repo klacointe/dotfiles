@@ -184,6 +184,8 @@ bindsym XF86MonBrightnessDown exec xcalib -co 95 -a # decrease screen brightness
 
 # Flameshot
 bindsym $mod+Print exec flameshot gui
+bindsym $mod+Shift+Print exec flameshot full --path /home/klacointe/Pictures
+
 
 # resize window (you can also use the mouse for that)
 mode "resize" {

@@ -1,0 +1,10 @@
+# Window settings
+gtk-titlebar = false
+window-decoration = false
+
+# Font settings
+font-family = "InconsolataGo Nerd Font"
+font-size = 14
+
+# Notifications
+app-notifications=no-clipboard-copy

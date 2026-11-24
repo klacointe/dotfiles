@@ -22,7 +22,7 @@
     "next-steps@claude-community": true
   },
   "env": {
-    "CLAUDE_CODE_SCROLL_SPEED": "3"
+    "CLAUDE_CODE_SCROLL_SPEED": "1.5"
   },
   "dialogExpiry": "60s",
   "theme": "auto",

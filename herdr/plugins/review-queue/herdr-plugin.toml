@@ -5,6 +5,10 @@ min_herdr_version = "0.9.0"
 description = "Open WTTJ PRs awaiting my review; click one to start a Claude /code-review in a split"
 platforms = ["linux"]
 
+# After a reboot/server start: bring the reviews workspace back to life.
+[[startup]]
+command = ["bash", "actions.sh", "restore"]
+
 # prefix+shift+q (see ~/dotfiles/herdr/config.toml) opens the list in its own tab.
 [[actions]]
 id = "open"

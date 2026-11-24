@@ -1,0 +1,41 @@
+id = "wttj.tab-titles"
+name = "Tab titles"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Name tabs after the program running in them (nvim, claude, htop, script name...)"
+platforms = ["linux"]
+
+# Poll every 2s so starting a program in the current tab is picked up. poll.sh is single-instance
+# and exits by itself when the server stops answering (see the header of poll.sh).
+[[startup]]
+command = ["bash", "poll.sh"]
+
+# Retitle on anything that can change the program running in a tab or its focused pane.
+# Observed on 0.9.5: tab.created, pane.created and pane.focused do invoke this hook; pane.updated did not
+# when a program started in an existing pane, so a tab is refreshed when focused, not the instant you run nvim.
+[[events]]
+on = "tab.created"
+command = ["bash", "retitle.sh"]
+
+[[events]]
+on = "pane.created"
+command = ["bash", "retitle.sh"]
+
+[[events]]
+on = "pane.focused"
+command = ["bash", "retitle.sh"]
+
+[[events]]
+on = "pane.updated"
+command = ["bash", "retitle.sh"]
+
+[[events]]
+on = "pane.agent_detected"
+command = ["bash", "retitle.sh"]
+
+# Manual run / keybinding: retitle every eligible tab now.
+[[actions]]
+id = "retitle"
+title = "Retitle tabs"
+contexts = ["workspace"]
+command = ["bash", "retitle.sh"]

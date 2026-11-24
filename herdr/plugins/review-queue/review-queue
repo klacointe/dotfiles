@@ -3,6 +3,7 @@
 #
 #   review-queue              run the UI in this pane (restarted if it crashes; q quits)
 #   review-queue --workspace  create/focus the "reviews" herdr workspace running the UI
+#   review-queue --restore    (startup hook) start the UI in a restored, idle "reviews" workspace
 #   review-queue --open URL   /code-review in a new workspace (REVIEW_QUEUE_MODE=split|tab to change)
 #   review-queue --open-tab URL  same, in a new tab
 #
@@ -91,6 +92,23 @@ ensure_workspace() {
   herdr pane send-keys "$pane" enter
 }
 
+# Startup / after a reboot: herdr restores the "reviews" workspace layout but not the running
+# command, so start the UI if its pane is just an idle shell (or create the workspace). No focus change.
+restore_workspace() {
+  local id pane title
+  sleep 2
+  id="$(herdr workspace list | jq -r --arg l "$LABEL" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)"
+  if [ -z "$id" ]; then
+    pane="$(herdr workspace create --label "$LABEL" --cwd "$ROOT" --no-focus | jq -r '.result.root_pane.pane_id')"
+  else
+    pane="$(herdr pane list | jq -r --arg w "$id" '[.result.panes[] | select(.workspace_id==$w)] | first | .pane_id')"
+    title="$(herdr pane get "$pane" | jq -r '.result.pane.terminal_title // ""')"
+    case "$title" in *@*:*) ;; *) return 0 ;; esac   # not a bare shell prompt: UI already running
+  fi
+  herdr pane send-text "$pane" "review-queue"
+  herdr pane send-keys "$pane" enter
+}
+
 run_ui() {
   # Restart the UI if it crashes (non-zero); `q` exits 0 and ends the loop.
   while true; do
@@ -106,5 +124,6 @@ case "${1:-}" in
   --open)      open_review "${2:-}" ;;
   --open-tab)  open_review_tab "${2:-}" ;;
   --workspace) ensure_workspace ;;
+  --restore)   restore_workspace ;;
   *)           run_ui ;;
 esac

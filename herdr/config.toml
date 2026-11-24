@@ -2,6 +2,10 @@ onboarding = false
 
 [ui]
 mouse_scroll_lines = 1
+prompt_new_tab_name = false
+
+[terminal]
+new_cwd = "follow"   # tabs and splits start in the directory of the pane they come from
 
 [keys]
 prefix = "ctrl+a"
@@ -16,11 +20,28 @@ focus_pane_up = ["prefix+k", "prefix+up"]
 focus_pane_right = ["prefix+l", "prefix+right"]
 workspace_picker = ["prefix+s", "prefix+w"]
 settings = "prefix+shift+s"
-previous_workspace = "prefix+("
-next_workspace = "prefix+)"
+previous_workspace = ["prefix+(", "shift+up"]
+next_workspace = ["prefix+)", "shift+down"]
+new_workspace = ""   # replaced by the commands below: new workspaces always start in ~/dev/WTTJ
+
+[[keys.command]]
+key = "prefix+shift+n"
+type = "shell"
+command = "\"$HERDR_BIN_PATH\" workspace create --cwd \"$HOME/dev/WTTJ\" --focus"
+description = "new workspace in ~/dev/WTTJ"
+
+[[keys.command]]
+key = "prefix+shift+c"
+type = "shell"
+command = "\"$HERDR_BIN_PATH\" workspace create --cwd \"$HOME/dev/WTTJ\" --focus"
+description = "new workspace in ~/dev/WTTJ"
 
 [[keys.command]]
 key = "prefix+shift+q"
 type = "plugin_action"
 command = "wttj.review-queue.open"
 description = "review queue"
+
+[theme]
+name = "terminal"
+auto_switch = false

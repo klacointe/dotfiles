@@ -6,5 +6,11 @@ window-decoration = false
 font-family = "InconsolataGo Nerd Font"
 font-size = 14
 
+# Scroll: 2 lines per wheel notch
+mouse-scroll-multiplier = precision:1,discrete:2
+
+# Theme
+#theme = light:Catppuccin Latte,dark:Catppuccin Frappe
+
 # Notifications
 app-notifications=no-clipboard-copy

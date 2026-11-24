@@ -21,6 +21,9 @@
     "coderabbit@claude-plugins-official": true,
     "next-steps@claude-community": true
   },
+  "env": {
+    "CLAUDE_CODE_SCROLL_SPEED": "3"
+  },
   "dialogExpiry": "60s",
   "theme": "auto",
   "verbose": false,

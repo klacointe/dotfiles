@@ -2,6 +2,7 @@
 """Review queue TUI (stdlib curses, no dependencies).
 
 Open WTTJ PRs awaiting my review, humans first then bots, grouped by repo.
+`ui.py --mine` shows my own open PRs instead (CI, review decision, unresolved comments, conflicts).
 Mouse: click selects, click again (or double-click) starts a review, right-click
 opens the PR in the browser, wheel scrolls. Keyboard: see FOOTER.
 Reviews are started by the sibling `review-queue --open URL` (herdr workspace).
@@ -11,6 +12,7 @@ import json
 import os
 import re
 import subprocess
+import sys
 import threading
 import time
 import webbrowser
@@ -20,15 +22,23 @@ OWNER = os.environ.get("REVIEW_QUEUE_OWNER", "WTTJ")
 REFRESH = int(os.environ.get("REVIEW_QUEUE_REFRESH", "300"))
 HERE = os.path.dirname(os.path.realpath(__file__))
 ENGINE = os.path.join(HERE, "review-queue")
-CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "review-queue.json")
+# Selected row / bars: dark-grey background keeping the foreground colours (reverse video gave white blocks).
+# SEL is a marker bit translated by put(); override the grey with REVIEW_QUEUE_SEL_BG (256-colour index).
+SEL = curses.A_PROTECT
+SEL_BG = int(os.environ.get("REVIEW_QUEUE_SEL_BG", "238"))
+MINE = "--mine" in sys.argv
+CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
+                     "review-queue-mine.json" if MINE else "review-queue.json")
 # Nerd Font glyphs (the terminal font is a Nerd Font)
 I_PR, I_EYE, I_USER, I_BOT = "\uf407", "\uf06e", "\uf007", "\uf544"
 I_OK, I_DRAFT, I_SYNC, I_FILTER, I_WARN = "\uf00c", "\uf040", "\uf021", "\uf0b0", "\uf071"
-I_X, I_DOT, I_UP, I_CHG, I_CIRC, I_COMMENT = "\uf00d", "\uf111", "\uf164", "\uf06a", "\uf10c", "\uf075"
+I_X, I_DOT, I_UP, I_CHG, I_CIRC, I_COMMENT = "\uf00d", "\uf111", "\uf164", "\uf06a", "\uf017", "\uf075"
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 # (key, label) pairs shown in the footer
+HINTS_MINE = (("2×click", "GitHub"), ("↵", "fix"), ("c", "comments"), ("f", "fix CI"), ("b", "browser"), ("y", "copy"),
+              ("/", "filter"), ("r", "refresh"), ("?", "legend"), ("q", "quit"))
 HINTS = (("2×click", "GitHub"), ("↵", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "browser"), ("y", "copy"),
-         ("/", "filter"), ("h", "bots"), ("r", "refresh"), ("q", "quit"))
+         ("/", "filter"), ("h", "bots"), ("r", "refresh"), ("?", "legend"), ("q", "quit"))
 I_SEARCH, I_REPLY, I_WRENCH, I_LINK, I_COPY, I_PLAY, I_GLOBE = "\uf002", "\uf112", "\uf0ad", "\uf0c1", "\uf0c5", "\uf04b", "\uf0ac"
 PANEL_H = 6   # detail panel above the footer: rule, title, link, status, buttons, spacer
 CI_TEXT = {"SUCCESS": ("CI passing", "green"), "FAILURE": ("CI failing", "red"), "ERROR": ("CI error", "red"),
@@ -66,6 +76,7 @@ GRAPHQL = os.path.join(HERE, "details.graphql")
 NO_BOTS = " ".join(f"-author:app/{b}" for b in ("github-actions", "wttj-bot", "renovate", "dependabot"))
 Q_REQUESTED = f"is:pr is:open review-requested:@me org:{OWNER} archived:false sort:updated-desc"
 Q_REVIEWED = f"is:pr is:open reviewed-by:@me -author:@me org:{OWNER} archived:false sort:updated-desc"
+Q_MINE = f"is:pr is:open author:@me org:{OWNER} archived:false sort:updated-desc"
 
 
 def gh_json(args):
@@ -85,7 +96,46 @@ def details(node):
             "threads": unresolved(node), "conflict": node["mergeable"] == "CONFLICTING"}
 
 
-def fetch():
+MINE_GRAPHQL = os.path.join(HERE, "mine.graphql")
+# bucket order and titles for the "mine" view
+MINE_GROUPS = (("attn", "Needs your attention"), ("ready", "Ready to merge"), ("wait", "Waiting for review"), ("draft", "Drafts"))
+
+
+def needs_attention(p):
+    return (p.get("ci") in ("FAILURE", "ERROR") or p.get("decision") == "CHANGES_REQUESTED"
+            or bool(p.get("threads")) or bool(p.get("conflict")))
+
+
+def bucket(p):
+    if p["isDraft"]:
+        return "draft"
+    if needs_attention(p):
+        return "attn"
+    if p.get("decision") == "APPROVED" and p.get("ci") in ("SUCCESS", None):
+        return "ready"
+    return "wait"
+
+
+def fetch_mine():
+    """(prs, warning): my own open PRs with CI, review decision, unresolved threads and conflicts."""
+    data = gh_json(["api", "graphql", "-F", f"query=@{MINE_GRAPHQL}", "-f", f"q={Q_MINE}"])["data"]
+    prs = []
+    for n in data["a"]["nodes"]:
+        if not n:
+            continue
+        reviewers = [(r["requestedReviewer"] or {}).get("login") or (r["requestedReviewer"] or {}).get("name")
+                     for r in n["reviewRequests"]["nodes"]]
+        p = {"url": n["url"], "number": n["number"], "title": n["title"], "updatedAt": n["updatedAt"], "isDraft": n["isDraft"],
+             "author": n["author"], "repository": n["repository"], "bot": False, "follow": False, **details(n)}
+        p["who"] = ", ".join(r for r in reviewers if r) or "no reviewer"
+        p["repo"] = p["repository"]["name"]
+        p["age"] = age(p["updatedAt"])
+        prs.append(p)
+    prs.sort(key=lambda p: (p["repo"], p["number"]))
+    return prs, None
+
+
+def fetch_requested():
     """(prs, warning). Cheap search for the whole list, GraphQL for CI/review details on human PRs."""
     base = gh_json(["search", "prs", "--review-requested=@me", "--state=open", f"--owner={OWNER}",
                     "--limit", "100", "--json", FIELDS])
@@ -142,6 +192,7 @@ class State:
         self.last_click = (None, 0.0)
         self.sessions = {}
         self.sessions_at = 0.0
+        self.legend = True
         try:
             with open(CACHE) as f:
                 self.prs = json.load(f)
@@ -156,7 +207,7 @@ class State:
 
         def work():
             try:
-                self.prs, self.error = fetch()
+                self.prs, self.error = fetch_mine() if MINE else fetch_requested()
                 self.updated = datetime.now()
                 os.makedirs(os.path.dirname(CACHE), exist_ok=True)
                 with open(CACHE, "w") as f:
@@ -175,6 +226,14 @@ class State:
         """Visible rows: ('head', text, kind) or ('pr', pr). kinds: human, follow, bot."""
         q = self.filter.lower()
         out = []
+        if MINE:
+            for kind, title in MINE_GROUPS:
+                group = [p for p in self.prs if bucket(p) == kind
+                         and (not q or q in f'{p["repo"]} {p["title"]} {p["who"]} {p["number"]}'.lower())]
+                if group:
+                    out.append(("head", f"{title} ({len(group)})", kind))
+                    out += [("pr", p) for p in group]
+            return out
         for kind, title in (("human", "Needs your review"), ("follow", "Reviewed by you"), ("bot", "Bots")):
             if kind == "bot" and self.hide_bots:
                 continue
@@ -220,6 +279,12 @@ def main(stdscr):
                            curses.COLOR_MAGENTA, curses.COLOR_RED, curses.COLOR_BLUE), start=1):
         curses.init_pair(i, c, -1)
     CYAN, YEL, GREEN, MAG, RED, _BLUE = (curses.color_pair(i) for i in range(1, 7))
+    sel_ok = curses.COLORS >= 256
+    if sel_ok:  # pair 10 = default foreground on grey; 11..16 = the six colours on grey
+        curses.init_pair(10, -1, SEL_BG)
+        for i, c in enumerate((curses.COLOR_CYAN, curses.COLOR_YELLOW, curses.COLOR_GREEN,
+                               curses.COLOR_MAGENTA, curses.COLOR_RED, curses.COLOR_BLUE), start=1):
+            curses.init_pair(10 + i, c, SEL_BG)
     DIM = curses.A_DIM
     stdscr.timeout(1000)
     st = State()
@@ -228,11 +293,38 @@ def main(stdscr):
 
     def put(y, x, text, attr=0):
         h, w = stdscr.getmaxyx()
+        if attr & SEL:
+            attr &= ~SEL
+            if sel_ok:
+                attr = (attr & ~curses.A_COLOR) | curses.color_pair(10 + curses.pair_number(attr))
+            else:
+                attr |= curses.A_REVERSE
         if 0 <= y < h and x < w:
             try:
                 stdscr.addnstr(y, x, text, max(0, w - x), attr)
             except curses.error:
                 pass
+
+    def draw_legend(y, width):
+        """Coloured legend, grouped by meaning; trailing groups are dropped when the pane is narrow."""
+        sep = ("  │  ", DIM)
+        groups = [
+            [("CI ", DIM | curses.A_BOLD), (I_OK, GREEN), (" pass  ", DIM), (I_X, RED), (" fail  ", DIM), (I_DOT, YEL), (" running", DIM)],
+            [("review ", DIM | curses.A_BOLD), (I_UP, GREEN), (" approved  ", DIM), (I_CHG, RED), (" changes  ", DIM), (I_CIRC, DIM), (" pending", DIM)],
+            [(I_COMMENT, YEL), (" open threads", DIM)],
+            [(I_WARN, RED), (" conflict", DIM)],
+        ]
+        if MINE:
+            groups.append([("names = requested reviewers", DIM)])
+        x = 1
+        for n, group in enumerate(groups):
+            seg = ([sep] if n else []) + group
+            need = sum(len(t) for t, _ in seg)
+            if x + need > width - 2:
+                break
+            for text, attr in seg:
+                put(y, x, text, attr)
+                x += len(text)
 
     def layout():
         rows = st.rows()
@@ -258,7 +350,18 @@ def main(stdscr):
         st.opened.add(pr["url"])
         st.flash(f'{ACTION_NAMES[action]} started: {pr["repo"]}#{pr["number"]}')
 
+    def has_comments(pr):
+        return bool(pr.get("threads")) or bool(pr.get("follow")) or pr.get("decision") == "CHANGES_REQUESTED"
+
     def open_review(pr):
+        if MINE:  # my own PR: the primary action is whatever blocks it
+            if pr.get("ci") in ("FAILURE", "ERROR"):
+                start(pr, "ci")
+            elif has_comments(pr):
+                start(pr, "reply")
+            else:
+                browse(pr)
+            return
         start(pr, "rereview" if pr.get("follow") else "review")
 
     def browse(pr):
@@ -286,6 +389,12 @@ def main(stdscr):
     def buttons(pr):
         """(action, icon, label, enabled, primary) for the selected PR."""
         ci_bad = pr.get("ci") in ("FAILURE", "ERROR")
+        if MINE:
+            return [("reply", I_REPLY, "Address comments", has_comments(pr), has_comments(pr) and not ci_bad),
+                    ("ci", I_WRENCH, "Fix CI", ci_bad, ci_bad),
+                    ("analyze", I_SEARCH, "Analyze", True, False),
+                    ("browser", I_GLOBE, "Open on GitHub", True, False),
+                    ("copy", I_COPY, "Copy link", True, False)]
         return [("rereview" if pr.get("follow") else "review", I_PLAY, "Re-review" if pr.get("follow") else "Review", True, True),
                 ("analyze", I_SEARCH, "Analyze", True, False),
                 ("reply", I_REPLY, "Address comments", bool(pr.get("threads")) or bool(pr.get("follow")), False),
@@ -323,19 +432,22 @@ def main(stdscr):
         state = f"{spin} refreshing" if st.loading else (f"{I_SYNC} {st.updated:%H:%M}" if st.updated else st.status)
 
         # title bar: icon + name on the left, badges on the right
-        put(0, 0, " " * w, curses.A_REVERSE)
-        put(0, 1, f" {I_PR}  Review queue ", curses.A_BOLD | curses.A_REVERSE)
-        right = (f" {spin} {working} running  " if working else " ") + f"{I_USER} {humans}  {I_EYE} {nfollow}  {I_BOT} {bots}   {state} "
-        put(0, max(20, w - len(right) - 1), right, curses.A_REVERSE)
+        put(0, 0, " " * w, SEL)
+        put(0, 1, f" {I_PR}  {'My pull requests' if MINE else 'Review queue'} ", curses.A_BOLD | SEL)
+        counts = (f"{I_WARN} {sum(1 for p in st.prs if bucket(p) == 'attn')}  {I_PR} {len(st.prs)}" if MINE
+                  else f"{I_USER} {humans}  {I_EYE} {nfollow}  {I_BOT} {bots}")
+        right = (f" {spin} {working} running  " if working else " ") + f"{counts}   {state} "
+        put(0, max(20, w - len(right) - 1), right, SEL)
         if st.error:
             put(1, 1, f"{I_WARN} {st.error} (showing the last list)", RED)
         elif st.filter or st.typing:
             put(1, 1, f"{I_FILTER} {st.filter}{'▏' if st.typing else ''}", YEL | curses.A_BOLD)
-        elif st.hide_bots:
+        elif st.hide_bots and not MINE:
             put(1, 1, f"{I_BOT} bots hidden (h to show)", DIM)
+        elif st.legend:
+            draw_legend(1, w)
         else:
-            put(1, 1, f"CI {I_OK} pass {I_X} fail {I_DOT} running   review {I_UP} approved {I_CHG} changes {I_CIRC} pending   "
-                   f"{I_COMMENT} open threads   {I_WARN} conflict", DIM)
+            put(1, 1, "? legend", DIM)
 
         rw = min(24, max([len(p["repo"]) for p in st.prs] or [8]))
         aw = min(18, max([len(p["who"]) for p in st.prs] or [8]))
@@ -343,13 +455,14 @@ def main(stdscr):
             y = 2 + n
             i = st.top + n
             if row[0] == "head":
-                icon, col = {"bot": (I_BOT, MAG), "follow": (I_EYE, YEL)}.get(row[2], (I_USER, GREEN))
+                icon, col = {"bot": (I_BOT, MAG), "follow": (I_EYE, YEL), "attn": (I_WARN, RED), "ready": (I_OK, GREEN),
+                             "wait": (I_EYE, DIM), "draft": (I_DRAFT, DIM)}.get(row[2], (I_USER, GREEN))
                 label = f" {icon}  {row[1]} "
                 put(y, 1, label, curses.A_BOLD | col)
                 put(y, 1 + len(label), "─" * max(0, w - len(label) - 3), DIM)
                 continue
             p = row[1]
-            rev = curses.A_REVERSE if i == sel else 0
+            rev = SEL if i == sel else 0
             if rev:
                 put(y, 0, " " * w, rev)
             secs = age_seconds(p["updatedAt"])
@@ -418,6 +531,21 @@ def main(stdscr):
                     tag += (" · " if tag else "") + "new commits since"
                 put(y, x, f"  ‹{tag}›", YEL | rev)
                 x += len(tag) + 5
+            if MINE:
+                tags = []
+                if p.get("ci") in ("FAILURE", "ERROR"):
+                    tags.append(("CI failing", RED))
+                if p.get("decision") == "CHANGES_REQUESTED":
+                    tags.append(("changes requested", RED))
+                if p.get("threads"):
+                    tags.append((f'{p["threads"]} unresolved', YEL))
+                if p.get("conflict"):
+                    tags.append(("conflict", RED))
+                if p.get("decision") == "APPROVED" and not needs_attention(p) and not p["isDraft"]:
+                    tags.append(("approved", GREEN))
+                for text, col in tags:
+                    put(y, x, f"  [{text}]", col | curses.A_BOLD | rev)
+                    x += len(text) + 5
             for action, status in sess:
                 word = SESSION_WORD.get(status, status)
                 col = CYAN if status == "working" else YEL if status == "blocked" else GREEN
@@ -443,7 +571,8 @@ def main(stdscr):
             put(py + 2, 5, sel_pr["url"], CYAN | curses.A_UNDERLINE)
             col = {"green": GREEN, "red": RED, "yellow": YEL, "dim": DIM}
             x = 2
-            meta = [(f'{sel_pr["repo"]}#{sel_pr["number"]}', CYAN), (f'by {sel_pr["who"]}', YEL), (f'updated {sel_pr["age"]} ago', DIM)]
+            meta = [(f'{sel_pr["repo"]}#{sel_pr["number"]}', CYAN),
+                    ((f'reviewers: {sel_pr["who"]}' if MINE else f'by {sel_pr["who"]}'), YEL), (f'updated {sel_pr["age"]} ago', DIM)]
             if sel_pr.get("detail"):
                 if sel_pr.get("ci") in CI_TEXT:
                     t, c = CI_TEXT[sel_pr["ci"]]
@@ -467,7 +596,7 @@ def main(stdscr):
             for action, icon, label, enabled, primary in buttons(sel_pr):
                 text = f" {icon}  {label} "
                 if enabled:
-                    attr = (GREEN | curses.A_BOLD | curses.A_REVERSE) if primary else curses.A_REVERSE
+                    attr = (GREEN | curses.A_BOLD | curses.A_REVERSE) if primary else SEL
                     hot.append((py + 4, x, x + len(text), action))
                 else:
                     attr = DIM | curses.A_UNDERLINE
@@ -475,14 +604,14 @@ def main(stdscr):
                 x += len(text) + 2
 
         # footer: highlighted keys; transient message wins for a few seconds
-        put(h - 1, 0, " " * w, curses.A_REVERSE)
+        put(h - 1, 0, " " * w, SEL)
         if st.msg and time.time() - st.msg_at < 4:
-            put(h - 1, 1, f" {I_OK} {st.msg} ", GREEN | curses.A_REVERSE | curses.A_BOLD)
+            put(h - 1, 1, f" {I_OK} {st.msg} ", GREEN | SEL | curses.A_BOLD)
         else:
             x = 1
-            for key, label in HINTS:
-                put(h - 1, x, f" {key} ", curses.A_BOLD | curses.A_REVERSE)
-                put(h - 1, x + len(key) + 2, f"{label} ", curses.A_REVERSE | DIM)
+            for key, label in (HINTS_MINE if MINE else HINTS):
+                put(h - 1, x, f" {key} ", curses.A_BOLD | SEL)
+                put(h - 1, x + len(key) + 2, f"{label} ", SEL | DIM)
                 x += len(key) + len(label) + 4
         stdscr.refresh()
 
@@ -555,7 +684,7 @@ def main(stdscr):
         elif ch == ord("a") and sel_pr:
             start(sel_pr, "analyze")
         elif ch == ord("c") and sel_pr:
-            if sel_pr.get("threads") or sel_pr.get("follow"):
+            if has_comments(sel_pr):
                 start(sel_pr, "reply")
             else:
                 st.flash("no unresolved comments on this PR")
@@ -569,6 +698,8 @@ def main(stdscr):
             next_refresh = time.time() + REFRESH
         elif ch == ord("/"):
             st.typing = True
+        elif ch == ord("?"):
+            st.legend = not st.legend
         elif ch == ord("h"):
             st.hide_bots = not st.hide_bots
         elif ch == 27:

@@ -43,5 +43,5 @@ command = "wttj.review-queue.open"
 description = "review queue"
 
 [theme]
-name = "terminal"
+name = "catppuccin"
 auto_switch = false

@@ -46,8 +46,13 @@ while IFS=$'\t' read -r id label; do
       | (map(select(.focused))[0] // .[0]) // empty
       | [.pane_id, (.agent // "")] | @tsv' <<<"$panes")
     if [ -n "${pane:-}" ] && name="$(program_for "$pane" "${agent:-}")"; then
-      [ "$name" != "$label" ] && "$herdr_bin" tab rename "$id" "$name" >/dev/null 2>&1
-      new_map="$(jq -c --arg t "$id" --arg n "$name" '. + {($t): $n}' <<<"$new_map")"
+      # Re-read the label right before renaming: someone (e.g. review-queue) may have named the tab
+      # while we were looking up its process.
+      cur="$("$herdr_bin" tab get "$id" 2>/dev/null | jq -r '.result.tab.label // empty')"
+      if [ -n "$cur" ] && { [[ "$cur" =~ ^[0-9]+$ ]] || [ "$cur" = "$auto" ]; }; then
+        [ "$name" != "$cur" ] && "$herdr_bin" tab rename "$id" "$name" >/dev/null 2>&1
+        new_map="$(jq -c --arg t "$id" --arg n "$name" '. + {($t): $n}' <<<"$new_map")"
+      fi
     fi
   fi
   # else: manually renamed (or no pane yet): leave it and forget it

@@ -1,0 +1,11 @@
+query($q: String!) {
+  a: search(query: $q, type: ISSUE, first: 50) { nodes { ...F } }
+}
+fragment F on PullRequest {
+  number title url updatedAt isDraft headRefOid mergeable reviewDecision
+  author { login __typename }
+  repository { name }
+  commits(last: 1) { nodes { commit { statusCheckRollup { state } } } }
+  reviewThreads(first: 30) { nodes { isResolved isOutdated } }
+  reviewRequests(first: 5) { nodes { requestedReviewer { __typename ... on User { login } ... on Team { name } } } }
+}

@@ -3,9 +3,55 @@ onboarding = false
 [ui]
 mouse_scroll_lines = 1
 prompt_new_tab_name = false
+hide_tab_bar_when_single_tab = true
+sidebar_width = 34
+agent_panel_sort = "priority"
+
+# Cockpit sends the system notifications itself, with its icon and a click that leads somewhere useful;
+# herdr keeps its own as in-app toasts so none arrives twice.
+[ui.toast]
+delivery = "herdr"
 
 [terminal]
 new_cwd = "follow"   # tabs and splits start in the directory of the pane they come from
+
+# Spaces: the pinned ones by name, then the counts cockpit reports on the inbox space and the app spaces.
+[ui.sidebar.spaces]
+rows = [
+  # Only the pinned spaces, labelled "<icon>  <name>" (the two spaces tell them); agent spaces render blank, the agent panel below lists them.
+  [{ token = "workspace" }],   # cockpit hid every workspace without a double space (pinned-space marker); show them all
+  # review-queue plugin: counts reported by its two views under the "reviews" workspace
+  # (herdr allows 16 rows: cockpit's $act_5, $act_6 and $term_4 rows were dropped to make room)
+  [{ token = "$rq_req", dim = true }],
+  [{ token = "$rq_fu", dim = true }],
+  [{ token = "$rq_mine", dim = true }, { token = "$rq_attn", fg = "#FF8080" }],
+  [{ token = "$review", dim = true }],
+  [{ token = "$ci_fail", fg = "#FF8080" }, { token = "$ci_ok", dim = true }],
+  [{ token = "$tickets", dim = true }],
+  [{ token = "$limits", dim = true }],
+  # Each app space's count, one row for all since a space has one app (the mail space's messages that need you too);
+  # monitor and routines red when something failed.
+  [
+    { token = "$mail", dim = true },
+    { token = "$todo", dim = true },
+    { token = "$runbook", dim = true },
+    { token = "$meetings", fg = "#FFC799" },
+    { token = "$monitor_bad", fg = "#FF8080" },
+    { token = "$monitor", dim = true },
+    { token = "$routines_bad", fg = "#FF8080" },
+    { token = "$routines", dim = true },
+    { token = "$review_space", dim = true },
+  ],
+  # The actions space's sessions, one per line with its state; one waiting for you in the accent colour.
+  [{ token = "$act_1", dim = true }, { token = "$act_1_wait", fg = "#FFC799" }],
+  [{ token = "$act_2", dim = true }, { token = "$act_2_wait", fg = "#FFC799" }],
+  [{ token = "$act_3", dim = true }, { token = "$act_3_wait", fg = "#FFC799" }],
+  [{ token = "$act_4", dim = true }, { token = "$act_4_wait", fg = "#FFC799" }],
+  # What runs in the other pinned spaces, one terminal per line with its agent and state; one waiting for you in the accent colour.
+  [{ token = "$term_1", dim = true }, { token = "$term_1_wait", fg = "#FFC799" }],
+  [{ token = "$term_2", dim = true }, { token = "$term_2_wait", fg = "#FFC799" }],
+  [{ token = "$term_3", dim = true }, { token = "$term_3_wait", fg = "#FFC799" }],
+]
 
 [keys]
 prefix = "ctrl+a"
@@ -24,11 +70,35 @@ previous_workspace = ["prefix+(", "shift+up"]
 next_workspace = ["prefix+)", "shift+down"]
 new_workspace = ""   # replaced by the commands below: new workspaces always start in ~/dev/WTTJ
 
+# Agents: state, task and the pane beside it, context percentage; under it repo · ticket, red when its PR fails CI.
+[ui.sidebar.agents]
+rows = [["state_icon", "workspace"]]
+
 [[keys.command]]
 key = "prefix+shift+n"
 type = "shell"
 command = "\"$HERDR_BIN_PATH\" workspace create --cwd \"$HOME/dev/WTTJ\" --focus"
 description = "new workspace in ~/dev/WTTJ"
+
+[ui.sidebar.agents.rows_by_agent]
+claude = [
+  [
+    "state_icon",
+    # The agent's topic; with a pane beside it, split like a browser's split view: topic │ page +N.
+    { token = "$agent", bold = true },
+    { token = "$side_sep", dim = true },
+    { token = "$side", fg = "#FFC799" },
+    { token = "$ctx_ok", dim = true },
+    { token = "$ctx_warn", fg = "#FFC799" },
+    { token = "$ctx_hot", fg = "#FF8080", bold = true },
+  ],
+  [
+    { token = "$work", dim = true },
+    { token = "$work_run", fg = "#FFC799", dim = true },
+    { token = "$work_fail", fg = "#FF8080" },
+  ],
+  [{ token = "$clash", fg = "#FF8080", bold = true }],
+]
 
 [[keys.command]]
 key = "prefix+shift+c"
@@ -42,6 +112,101 @@ type = "plugin_action"
 command = "wttj.review-queue.open"
 description = "review queue"
 
+# The palette over the pane in view: every app's items, the week's events, past sessions and cockpit's commands; over a
+# Claude session, a found item can go into it.
+[[keys.command]]
+key = "prefix+space"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/palette.sh"
+description = "cockpit palette"
+
+# Every agent: who needs you, answered from the popup, with recap, go and snooze.
+[[keys.command]]
+key = "prefix+shift+a"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/popup.sh agents"
+description = "agents"
+
 [theme]
 name = "catppuccin"
 auto_switch = false
+
+# Start work: a prompt, a ticket's key or a PR's URL becomes a worktree, a space and an agent, planned before Enter.
+[[keys.command]]
+# was prefix+shift+s: keeps herdr settings
+key = "prefix+shift+k"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/popup.sh start-work"
+description = "start work"
+
+# The agents a restart stopped, resumed where they were.
+[[keys.command]]
+key = "prefix+shift+u"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/cockpit.sh resume all"
+description = "resume agents"
+
+# The page of the terminal-browser beside the focused pane, in the default browser.
+[[keys.command]]
+key = "prefix+f"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/browse.sh --external"
+description = "page beside, in the default browser"
+
+# Jump to the pinned spaces.
+[[keys.command]]
+key = "prefix+i"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh inbox"
+description = "inbox space"
+
+[[keys.command]]
+key = "prefix+t"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh terminal"
+description = "terminal space"
+
+[[keys.command]]
+# was prefix+a: keeps last_pane
+key = "prefix+shift+j"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh actions"
+description = "actions space"
+
+[[keys.command]]
+# was prefix+d: keeps detach
+key = "prefix+shift+o"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh to-do"
+description = "to-do space"
+
+[[keys.command]]
+key = "prefix+u"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh runbook"
+description = "runbook space"
+
+[[keys.command]]
+key = "prefix+m"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh meetings"
+description = "meetings space"
+
+[[keys.command]]
+key = "prefix+o"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh monitor"
+description = "monitor space"
+
+[[keys.command]]
+key = "prefix+y"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh routines"
+description = "routines space"
+
+# prefix+e is herdr's edit_scrollback, so mail takes prefix+shift+e.
+[[keys.command]]
+key = "prefix+shift+e"
+type = "shell"
+command = "sh ~/.config/cockpit/herdr/focus-space.sh mail"
+description = "mail space"

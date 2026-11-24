@@ -34,6 +34,10 @@ program_for() {  # $1 = pane id, $2 = agent (may be empty)
 }
 
 tabs="$("$herdr_bin" tab list 2>/dev/null)" || exit 0
+# Leave cockpit's pinned spaces alone: their names contain a double space ("<icon>  <name>") and cockpit names
+# their tabs itself; renaming them here starts a rename fight that redraws the whole UI every few seconds.
+pinned="$("$herdr_bin" workspace list 2>/dev/null | jq -c '[.result.workspaces[] | select(.label | contains("  ")) | .workspace_id]')"
+[ -n "$pinned" ] || pinned='[]'
 panes="$("$herdr_bin" pane list 2>/dev/null)" || exit 0
 new_map='{}'
 
@@ -56,6 +60,6 @@ while IFS=$'\t' read -r id label; do
     fi
   fi
   # else: manually renamed (or no pane yet): leave it and forget it
-done < <(jq -r '.result.tabs[] | [.tab_id, .label] | @tsv' <<<"$tabs")
+done < <(jq -r --argjson pinned "$pinned" '.result.tabs[] | select(.workspace_id as $w | $pinned | index($w) | not) | [.tab_id, .label] | @tsv' <<<"$tabs")
 
 printf '%s\n' "$new_map" >"$map"

@@ -11,8 +11,8 @@ platforms = ["linux"]
 command = ["bash", "poll.sh"]
 
 # Retitle on anything that can change the program running in a tab or its focused pane.
-# Observed on 0.9.5: tab.created, pane.created and pane.focused do invoke this hook; pane.updated did not
-# when a program started in an existing pane, so a tab is refreshed when focused, not the instant you run nvim.
+# herdr 0.9.5 has no hook event for "a program started in an existing pane" (pane.updated is not a known hook
+# event); poll.sh covers that, these cover creation and focus.
 [[events]]
 on = "tab.created"
 command = ["bash", "retitle.sh"]
@@ -23,10 +23,6 @@ command = ["bash", "retitle.sh"]
 
 [[events]]
 on = "pane.focused"
-command = ["bash", "retitle.sh"]
-
-[[events]]
-on = "pane.updated"
 command = ["bash", "retitle.sh"]
 
 [[events]]

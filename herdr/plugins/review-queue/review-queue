@@ -13,7 +13,7 @@
 set -uo pipefail
 
 ROOT="${REVIEW_QUEUE_ROOT:-$HOME/dev/WTTJ}"
-LABEL="${REVIEW_QUEUE_LABEL:-reviews}"
+LABEL="${REVIEW_QUEUE_LABEL:-  reviews}"   # nerd-font pull-request icon, cockpit style "<icon>  <name>"
 SELF="$(readlink -f "$0")"
 HERE="$(dirname "$SELF")"
 
@@ -77,7 +77,13 @@ open_review_workspace() {
     return 0
   fi
   [ "${REVIEW_QUEUE_FOCUS:-0}" = 1 ] && focus=--focus
-  pane="$(herdr workspace create --label "$name" --cwd "$dir" $focus | jq -r '.result.root_pane.pane_id')"
+  local out tab
+  out="$(herdr workspace create --label "$name" --cwd "$dir" $focus)"
+  pane="$(jq -r '.result.root_pane.pane_id' <<<"$out")"
+  tab="$(jq -r '.result.tab.tab_id' <<<"$out")"
+  # Name the tab like the workspace: cockpit's sync-spaces renames a single-tab workspace after its tab,
+  # and the review list finds sessions by workspace label. (tab-titles leaves non-numeric labels alone.)
+  herdr tab rename "$tab" "$name" >/dev/null
   start_review "$pane" "$url"
 }
 
@@ -120,7 +126,8 @@ start_view() {  # $1 = tab id, $2 = command, $3 = "fresh" if the tab was just cr
 
 ensure_views() {  # $1 = focus | nofocus
   local ws req mine fresh_req=fresh first
-  ws="$(herdr workspace list | jq -r --arg l "$LABEL" '[.result.workspaces[] | select(.label==$l)] | first | .workspace_id // empty')"
+  ws="$(herdr workspace list | jq -r --arg l "$LABEL" '[.result.workspaces[] | select(.label==$l or .label=="reviews")] | first | .workspace_id // empty')"
+  [ -n "$ws" ] && herdr workspace rename "$ws" "$LABEL" >/dev/null   # old plain "reviews" label -> with the icon
   if [ -z "$ws" ]; then
     local out
     out="$(herdr workspace create --label "$LABEL" --cwd "$ROOT" --no-focus)"

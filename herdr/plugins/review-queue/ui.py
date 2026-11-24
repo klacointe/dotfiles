@@ -174,6 +174,33 @@ def fetch_requested():
     return prs, warn
 
 
+def report_caption(prs):
+    """Sidebar caption for the reviews workspace: workspace tokens ($rq_req, $rq_mine, $rq_attn) that the herdr
+    sidebar rows in config.toml render under the workspace name. Expires if this UI stops refreshing."""
+    herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
+    ws = os.environ.get("HERDR_WORKSPACE_ID")
+    try:
+        if not ws and os.environ.get("HERDR_PANE_ID"):
+            out = subprocess.run([herdr, "pane", "get", os.environ["HERDR_PANE_ID"]], capture_output=True, text=True, timeout=5).stdout
+            ws = json.loads(out)["result"]["pane"]["workspace_id"]
+        if not ws:
+            return
+        if MINE:
+            attn = sum(1 for p in prs if not p["isDraft"] and needs_attention(p))
+            tokens = {"rq_mine": f"{I_PR} {len(prs)} mine", "rq_attn": f"{I_WARN} {attn} to fix" if attn else None}
+        else:
+            humans = sum(1 for p in prs if not p["bot"] and not p.get("follow"))
+            follow = sum(1 for p in prs if p.get("follow"))
+            tokens = {"rq_req": f"{I_EYE} {humans} to review", "rq_fu": f"{I_REPLY} {follow} follow-up" if follow else None}
+        cmd = [herdr, "workspace", "report-metadata", ws, "--source", "user:review-queue-" + ("mine" if MINE else "requested"),
+               "--ttl-ms", str(REFRESH * 2000)]
+        for name, value in tokens.items():
+            cmd += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
+        subprocess.run(cmd, capture_output=True, timeout=5)
+    except Exception:
+        pass  # a missing caption must never break the list
+
+
 class State:
     def __init__(self):
         self.prs = []
@@ -208,6 +235,7 @@ class State:
         def work():
             try:
                 self.prs, self.error = fetch_mine() if MINE else fetch_requested()
+                report_caption(self.prs)
                 self.updated = datetime.now()
                 os.makedirs(os.path.dirname(CACHE), exist_ok=True)
                 with open(CACHE, "w") as f:
@@ -288,6 +316,8 @@ def main(stdscr):
     DIM = curses.A_DIM
     stdscr.timeout(1000)
     st = State()
+    if st.prs:
+        threading.Thread(target=report_caption, args=(st.prs,), daemon=True).start()
     st.refresh()
     next_refresh = time.time() + REFRESH
 

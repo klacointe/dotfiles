@@ -4,7 +4,8 @@
 #   review-queue              run the UI in this pane (restarted if it crashes; q quits)
 #   review-queue --workspace  create/focus the "reviews" herdr workspace running the UI
 #   review-queue --restore    (startup hook) start the UI in a restored, idle "reviews" workspace
-#   review-queue --open URL   /code-review in a new workspace (REVIEW_QUEUE_MODE=split|tab to change)
+#   review-queue --open URL [review|rereview|analyze|reply|ci]
+#                             start Claude on the PR in a new workspace (REVIEW_QUEUE_MODE=split|tab to change)
 #   review-queue --open-tab URL  same, in a new tab
 #
 # Reviews are read-only: `claude "/code-review <url>"` never posts comments.
@@ -23,8 +24,25 @@ parse_pr() {  # sets url repo num dir; returns 1 for header/placeholder rows
   dir="$ROOT/$repo"; [ -d "$dir" ] || dir="$ROOT"
 }
 
+ACTION="review"   # review | rereview | analyze | reply | ci  (set from the 3rd argument of --open)
+
+# What Claude is asked to do. Every prompt is read-only: nothing is posted, resolved or pushed
+# without explicit approval. No quotes inside the prompts (they are wrapped in single quotes).
+prompt_for() {  # $1 = action, $2 = url
+  case "$1" in
+    analyze) printf 'Analyze the pull request %s. Summarize what it changes and why, point out the risky parts and what deserves attention first, and list questions for the author. Read only: do not post, approve or comment anything on GitHub.' "$2" ;;
+    reply)   printf 'Go through the unresolved review comments on the pull request %s (use gh api graphql on reviewThreads). For each thread, say whether it is addressed in the code, then draft a reply or a fix. Only show me the drafts: do not post, resolve or push anything without my explicit approval.' "$2" ;;
+    ci)      printf 'CI is failing on the pull request %s. Use gh pr checks and the job logs to find the cause, explain it and suggest a fix. Read only: do not push or comment on GitHub.' "$2" ;;
+    *)       printf '/code-review %s' "$2" ;;
+  esac
+}
+
+label_prefix() {
+  case "$ACTION" in analyze) echo analyze ;; reply) echo comments ;; ci) echo ci ;; *) echo review ;; esac
+}
+
 start_review() {  # $1 = pane id, $2 = url
-  herdr pane send-text "$1" "claude \"/code-review $2\""
+  herdr pane send-text "$1" "claude '$(prompt_for "$ACTION" "$2")'"
   herdr pane send-keys "$1" enter
 }
 
@@ -51,7 +69,7 @@ open_review_split() {
 open_review_workspace() {
   local url repo num dir name id pane focus=--no-focus
   parse_pr "$1" || return 0
-  name="review $repo#$num"
+  name="$(label_prefix) $repo#$num"
   id="$(herdr workspace list | jq -r --arg l "$name" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)"
   if [ -n "$id" ]; then
     herdr workspace focus "$id" >/dev/null
@@ -121,7 +139,7 @@ run_ui() {
 }
 
 case "${1:-}" in
-  --open)      open_review "${2:-}" ;;
+  --open)      ACTION="${3:-review}"; open_review "${2:-}" ;;
   --open-tab)  open_review_tab "${2:-}" ;;
   --workspace) ensure_workspace ;;
   --restore)   restore_workspace ;;

@@ -1,2 +1,26 @@
+onboarding = false
+
 [ui]
 mouse_scroll_lines = 1
+
+[keys]
+prefix = "ctrl+a"
+detach = ["prefix+q", "prefix+d"]
+next_tab = ["prefix+n", "shift+right"]
+previous_tab = ["prefix+p", "shift+left"]
+last_pane = "prefix+a"
+edit_scrollback = ["prefix+e", "prefix+["]
+focus_pane_left = ["prefix+h", "prefix+left"]
+focus_pane_down = ["prefix+j", "prefix+down"]
+focus_pane_up = ["prefix+k", "prefix+up"]
+focus_pane_right = ["prefix+l", "prefix+right"]
+workspace_picker = ["prefix+s", "prefix+w"]
+settings = "prefix+shift+s"
+previous_workspace = "prefix+("
+next_workspace = "prefix+)"
+
+[[keys.command]]
+key = "prefix+shift+q"
+type = "plugin_action"
+command = "wttj.review-queue.open"
+description = "review queue"

@@ -1,0 +1,39 @@
+id = "wttj.review-queue"
+name = "Review queue"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Open WTTJ PRs awaiting my review; click one to start a Claude /code-review in a split"
+platforms = ["linux"]
+
+# prefix+shift+q (see ~/dotfiles/herdr/config.toml) opens the list in its own tab.
+[[actions]]
+id = "open"
+title = "Review queue"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "open"]
+
+# Focus (or create) the always-on "reviews" workspace.
+[[actions]]
+id = "workspace"
+title = "Review queue workspace"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "workspace"]
+
+# Ctrl+click on a GitHub PR URL in any pane starts a review in a new workspace.
+[[actions]]
+id = "review-url"
+title = "Review PR with Claude"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "review-url"]
+
+[[panes]]
+id = "list"
+title = "Review queue"
+placement = "tab"
+command = ["bash", "review-queue"]
+
+[[link_handlers]]
+id = "github-pr"
+title = "Review PR with Claude"
+pattern = "^https://github\\.com/WTTJ/[^/]+/pull/[0-9]+$"
+action = "review-url"

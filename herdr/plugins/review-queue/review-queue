@@ -1,0 +1,110 @@
+#!/usr/bin/env bash
+# Engine for the review-queue plugin (UI lives in ui.py, a stdlib-curses app).
+#
+#   review-queue              run the UI in this pane (restarted if it crashes; q quits)
+#   review-queue --workspace  create/focus the "reviews" herdr workspace running the UI
+#   review-queue --open URL   /code-review in a new workspace (REVIEW_QUEUE_MODE=split|tab to change)
+#   review-queue --open-tab URL  same, in a new tab
+#
+# Reviews are read-only: `claude "/code-review <url>"` never posts comments.
+set -uo pipefail
+
+ROOT="${REVIEW_QUEUE_ROOT:-$HOME/dev/WTTJ}"
+LABEL="${REVIEW_QUEUE_LABEL:-reviews}"
+SELF="$(readlink -f "$0")"
+HERE="$(dirname "$SELF")"
+
+parse_pr() {  # sets url repo num dir; returns 1 for header/placeholder rows
+  url="$1"
+  case "$url" in https://github.com/*/pull/[0-9]*) ;; *) return 1 ;; esac
+  repo="$(sed -E 's|.*/([^/]+)/pull/[0-9]+.*|\1|' <<<"$url")"
+  num="${url##*/}"
+  dir="$ROOT/$repo"; [ -d "$dir" ] || dir="$ROOT"
+}
+
+start_review() {  # $1 = pane id, $2 = url
+  herdr pane send-text "$1" "claude \"/code-review $2\""
+  herdr pane send-keys "$1" enter
+}
+
+# MODE=split: Claude opens in a split next to the list (list stays visible).
+# First review splits the list pane to the right; further ones stack below the last review.
+open_review_split() {
+  local url repo num dir me tab last new
+  parse_pr "$1" || return 0
+  me="${HERDR_PANE_ID:-$(herdr pane current | jq -r '.result.pane.pane_id')}"
+  tab="$(herdr pane get "$me" | jq -r '.result.pane.tab_id')"
+  last="$(herdr pane list | jq -r --arg t "$tab" --arg me "$me" \
+    '[.result.panes[] | select(.tab_id==$t and .pane_id!=$me)] | last | .pane_id // empty')"
+  if [ -n "$last" ]; then
+    new="$(herdr pane split "$last" --direction down --cwd "$dir" --focus | jq -r '.result.pane.pane_id')"
+  else
+    new="$(herdr pane split "$me" --direction right --ratio 0.35 --cwd "$dir" --focus | jq -r '.result.pane.pane_id')"
+  fi
+  start_review "$new" "$url"
+}
+
+# Default: each review gets its own workspace ("review repo#N"), so the list stays untouched
+# and the agent shows up in the sidebar. Re-clicking a PR focuses its existing workspace.
+# REVIEW_QUEUE_FOCUS=1 jumps to the new workspace; default leaves you on the list.
+open_review_workspace() {
+  local url repo num dir name id pane focus=--no-focus
+  parse_pr "$1" || return 0
+  name="review $repo#$num"
+  id="$(herdr workspace list | jq -r --arg l "$name" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)"
+  if [ -n "$id" ]; then
+    herdr workspace focus "$id" >/dev/null
+    return 0
+  fi
+  [ "${REVIEW_QUEUE_FOCUS:-0}" = 1 ] && focus=--focus
+  pane="$(herdr workspace create --label "$name" --cwd "$dir" $focus | jq -r '.result.root_pane.pane_id')"
+  start_review "$pane" "$url"
+}
+
+open_review() {
+  case "${REVIEW_QUEUE_MODE:-workspace}" in
+    split) open_review_split "$@" ;;
+    tab)   open_review_tab "$@" ;;
+    *)     open_review_workspace "$@" ;;
+  esac
+}
+
+# Link click / no list pane: Claude opens in its own tab in the current workspace.
+open_review_tab() {
+  local url repo num dir ws pane
+  parse_pr "$1" || return 0
+  ws="$(herdr pane current | jq -r '.result.pane.workspace_id')"
+  pane="$(herdr tab create --workspace "$ws" --cwd "$dir" --label "review $repo#$num" --focus \
+    | jq -r '.result.root_pane.pane_id')"
+  start_review "$pane" "$url"
+}
+
+ensure_workspace() {
+  local id pane
+  id="$(herdr workspace list | jq -r --arg l "$LABEL" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)"
+  if [ -n "$id" ]; then
+    herdr workspace focus "$id" >/dev/null
+    return 0
+  fi
+  pane="$(herdr workspace create --label "$LABEL" --cwd "$ROOT" --focus | jq -r '.result.root_pane.pane_id')"
+  herdr pane send-text "$pane" "review-queue"
+  herdr pane send-keys "$pane" enter
+}
+
+run_ui() {
+  # Restart the UI if it crashes (non-zero); `q` exits 0 and ends the loop.
+  while true; do
+    python3 "$HERE/ui.py"
+    rc=$?
+    [ "$rc" -eq 0 ] && break
+    echo "review-queue UI exited ($rc), restarting in 2s…" >&2
+    sleep 2
+  done
+}
+
+case "${1:-}" in
+  --open)      open_review "${2:-}" ;;
+  --open-tab)  open_review_tab "${2:-}" ;;
+  --workspace) ensure_workspace ;;
+  *)           run_ui ;;
+esac

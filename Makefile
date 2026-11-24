@@ -52,6 +52,17 @@ symlinks:
 	#-ln -snf ~/dotfiles/nvim/autoload ~/.vim/autoload
 	-ln -snf ~/dotfiles/vim/vimrc ~/.vimrc
 	-ln -snf ~/dotfiles/gitconfig ~/.gitconfig
+	-mkdir -p ~/.local/bin
+	-ln -snf ~/dotfiles/herdr/plugins/review-queue/review-queue ~/.local/bin/review-queue
+	-mkdir -p ~/.config/herdr
+	-ln -snf ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
+	@if command -v herdr >/dev/null 2>&1; then \
+		herdr integration install claude; \
+		herdr integration install opencode; \
+		herdr plugin link ~/dotfiles/herdr/plugins/review-queue; \
+	else \
+		echo "herdr not installed, skipping integrations"; \
+	fi
 	-ln -snf ~/dotfiles/i3 ~/.config/i3
 	-ln -snf ~/dotfiles/i3status ~/.config/i3status
 	-ln -snf ~/dotfiles/ghostty ~/.config/ghostty

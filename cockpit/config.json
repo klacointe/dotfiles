@@ -3,11 +3,6 @@
   "github": {
     "enabled": true
   },
-  "code": {
-    "enabled": false,
-    "name": "GitLab",
-    "server": "gitlab"
-  },
   "tickets": {
     "enabled": true,
     "keys": [
@@ -19,7 +14,7 @@
   "ci": {
     "enabled": true,
     "name": "CircleCI",
-    "server": "circleci"
+    "server": "claude.ai CircleCI"
   },
   "calendar": {
     "enabled": true,
@@ -28,19 +23,44 @@
   },
   "platform": {
     "enabled": true,
-    "name": "Platform",
-    "server": ""
+    "name": "Backstage",
+    "server": "backstage",
+    "tools": {
+      "deployStatus": {
+        "tool": "ship_get-deploy-status",
+        "args": {
+          "env": "production"
+        }
+      },
+      "deployHistory": {
+        "tool": "ship_list-deployments",
+        "args": {
+          "env": "production",
+          "appId": "{appId}"
+        }
+      }
+    },
+    "fields": {
+      "apps": "apps",
+      "appId": "id",
+      "appRepo": "githubRepoUrl",
+      "appLink": "argoUrl",
+      "appTag": "imageTag|branch",
+      "appSha": "commitSha",
+      "deployments": "deployments",
+      "deployWorkflow": "workflowName",
+      "deployNamespace": "namespace",
+      "deployTag": "tag",
+      "deployBranch": "branch"
+    }
   },
   "datadog": {
     "server": "claude.ai Datadog"
   },
   "mail": {
-    "enabled": false
-  },
-  "servers": {
-    "gitlab": {
-      "url": "https://gitlab.com/api/v4/mcp"
-    }
+    "enabled": true,
+    "name": "Gmail",
+    "server": "claude.ai Gmail"
   },
   "e2eBrowser": "terminal-browser",
   "spaces": [
@@ -52,10 +72,28 @@
     "meetings",
     "monitor",
     "routines",
-    "review"
+    "review",
+    "mail",
+    {
+      "name": "dotfiles",
+      "cwd": "~/dotfiles",
+      "icon": "",
+      "key": "prefix+shift+d"
+    }
   ],
   "agents": {
     "default": "claude"
   },
-  "frontend": "tui"
+  "frontend": "tui",
+  "deployWatch": {
+    "enabled": true,
+    "afterMinutes": 30,
+    "tools": [
+      "mcp__claude_ai_Datadog"
+    ]
+  },
+  "density": "comfortable",
+  "monitor": {
+    "releaseDays": 14
+  }
 }

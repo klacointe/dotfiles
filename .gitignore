@@ -63,3 +63,6 @@ secrets.json
 
 # CLAUDE.md is ignored globally (~/.gitignore); this repo is where it lives
 !claude/CLAUDE.md
+
+# Python bytecode
+__pycache__/

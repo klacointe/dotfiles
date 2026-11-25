@@ -36,8 +36,4 @@ title = "Review queue"
 placement = "tab"
 command = ["bash", "review-queue"]
 
-[[link_handlers]]
-id = "github-pr"
-title = "Review PR with Claude"
-pattern = "^https://github\\.com/WTTJ/[^/]+/pull/[0-9]+$"
-action = "review-url"
+# (no [[link_handlers]]: a handler for WTTJ PR URLs made Ctrl+click start a review instead of opening the browser)

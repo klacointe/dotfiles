@@ -58,6 +58,8 @@ symlinks:
 	-ln -snf ~/dotfiles/herdr/plugins/review-queue/review-queue ~/.local/bin/review-queue
 	-mkdir -p ~/.config/herdr
 	-ln -snf ~/dotfiles/herdr/config.toml ~/.config/herdr/config.toml
+	-mkdir -p ~/.config/cockpit
+	-ln -snf ~/dotfiles/cockpit/config.json ~/.config/cockpit/config.json
 	@if command -v herdr >/dev/null 2>&1; then \
 		herdr integration install claude; \
 		herdr integration install opencode; \

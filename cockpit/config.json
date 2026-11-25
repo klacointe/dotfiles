@@ -1,0 +1,61 @@
+{
+  "reposDir": "~/dev/WTTJ",
+  "github": {
+    "enabled": true
+  },
+  "code": {
+    "enabled": false,
+    "name": "GitLab",
+    "server": "gitlab"
+  },
+  "tickets": {
+    "enabled": true,
+    "keys": [
+      "PLA"
+    ],
+    "name": "Linear",
+    "server": "claude.ai Linear"
+  },
+  "ci": {
+    "enabled": true,
+    "name": "CircleCI",
+    "server": "circleci"
+  },
+  "calendar": {
+    "enabled": true,
+    "name": "Calendar",
+    "server": "claude.ai Google Calendar"
+  },
+  "platform": {
+    "enabled": true,
+    "name": "Platform",
+    "server": ""
+  },
+  "datadog": {
+    "server": "claude.ai Datadog"
+  },
+  "mail": {
+    "enabled": false
+  },
+  "servers": {
+    "gitlab": {
+      "url": "https://gitlab.com/api/v4/mcp"
+    }
+  },
+  "e2eBrowser": "terminal-browser",
+  "spaces": [
+    "inbox",
+    "terminal",
+    "actions",
+    "to-do",
+    "runbook",
+    "meetings",
+    "monitor",
+    "routines",
+    "review"
+  ],
+  "agents": {
+    "default": "claude"
+  },
+  "frontend": "tui"
+}

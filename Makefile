@@ -27,6 +27,7 @@ symlinks_server:
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
+	-ln -snf ~/dotfiles/zsh/zprofile ~/.zprofile
 	#-ln -snf ~/dotfiles/vim ~/.vim
 	-ln -snf ~/dotfiles/nvim ~/.config/nvim
 	-mkdir -p ~/.vim
@@ -42,6 +43,7 @@ symlinks:
 	-ln -snf ~/dotfiles/Xsession ~/.Xsession
 	-ln -snf ~/dotfiles/zsh ~/.zsh
 	-ln -snf ~/.zsh/zshrc ~/.zshrc
+	-ln -snf ~/dotfiles/zsh/zprofile ~/.zprofile
 	-ln -snf ~/dotfiles/bashrc ~/.bashrc
 	-ln -snf ~/dotfiles/tmux ~/.tmux
 	-ln -snf ~/dotfiles/tmux/tmux.conf ~/.tmux.conf

@@ -1,0 +1,9 @@
+# Read by every zsh login shell, including `zsh -l -c env`, which is how cockpit's hub builds its environment:
+# it starts from a bare PATH and takes whatever a login shell adds. `gh` (and node, ruby...) exist here only as asdf
+# shims, so without this the hub cannot run them. Interactive shells already have the shims; this only adds them
+# when they are missing.
+asdf_shims="${ASDF_DATA_DIR:-$HOME/.asdf}/shims"
+if [[ -d $asdf_shims && ":$PATH:" != *":$asdf_shims:"* ]]; then
+  export PATH="$asdf_shims:$PATH"
+fi
+unset asdf_shims

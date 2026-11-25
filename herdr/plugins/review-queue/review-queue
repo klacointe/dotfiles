@@ -6,7 +6,7 @@
 #   review-queue --workspace  create/focus the "reviews" herdr workspace running the UI
 #   review-queue --restore    (startup hook) start the UI in a restored, idle "reviews" workspace
 #   review-queue --open URL [review|rereview|analyze|reply|ci]
-#                             start Claude on the PR in a new workspace (REVIEW_QUEUE_MODE=split|tab to change)
+#                             start Claude on the PR in a new tab of the actions space (REVIEW_QUEUE_MODE=split|tab to change)
 #   review-queue --open-tab URL  same, in a new tab
 #
 # Reviews are read-only: `claude "/code-review <url>"` never posts comments.
@@ -64,26 +64,32 @@ open_review_split() {
   start_review "$new" "$url"
 }
 
-# Default: each review gets its own workspace ("review repo#N"), so the list stays untouched
-# and the agent shows up in the sidebar. Re-clicking a PR focuses its existing workspace.
-# REVIEW_QUEUE_FOCUS=1 jumps to the new workspace; default leaves you on the list.
+# Default: each review gets its own tab ("review repo#N") in the cockpit actions space, so the list stays
+# untouched. Re-clicking a PR focuses its existing tab. REVIEW_QUEUE_FOCUS=1 jumps to the new tab;
+# default leaves you on the list. Without an actions space, a workspace per review is created instead.
 open_review_workspace() {
-  local url repo num dir name id pane focus=--no-focus
+  local url repo num dir name ws tab pane focus=--no-focus
   parse_pr "$1" || return 0
   name="$(label_prefix) $repo#$num"
-  id="$(herdr workspace list | jq -r --arg l "$name" '.result.workspaces[] | select(.label==$l) | .workspace_id' | head -1)"
-  if [ -n "$id" ]; then
-    herdr workspace focus "$id" >/dev/null
+  [ "${REVIEW_QUEUE_FOCUS:-0}" = 1 ] && focus=--focus
+  # The cockpit "actions" space (labelled "<icon>  actions") hosts the sessions, one tab each.
+  ws="$(herdr workspace list | jq -r '[.result.workspaces[] | select(.label | endswith("  actions"))] | first | .workspace_id // empty')"
+  if [ -z "$ws" ]; then   # no actions space pinned: a workspace of its own, as before
+    local out
+    out="$(herdr workspace create --label "$name" --cwd "$dir" $focus)"
+    pane="$(jq -r '.result.root_pane.pane_id' <<<"$out")"
+    herdr tab rename "$(jq -r '.result.tab.tab_id' <<<"$out")" "$name" >/dev/null
+    start_review "$pane" "$url"
     return 0
   fi
-  [ "${REVIEW_QUEUE_FOCUS:-0}" = 1 ] && focus=--focus
-  local out tab
-  out="$(herdr workspace create --label "$name" --cwd "$dir" $focus)"
-  pane="$(jq -r '.result.root_pane.pane_id' <<<"$out")"
-  tab="$(jq -r '.result.tab.tab_id' <<<"$out")"
-  # Name the tab like the workspace: cockpit's sync-spaces renames a single-tab workspace after its tab,
-  # and the review list finds sessions by workspace label. (tab-titles leaves non-numeric labels alone.)
-  herdr tab rename "$tab" "$name" >/dev/null
+  tab="$(herdr tab list | jq -r --arg w "$ws" --arg l "$name" '[.result.tabs[] | select(.workspace_id==$w and .label==$l)] | first | .tab_id // empty')"
+  if [ -n "$tab" ]; then
+    herdr workspace focus "$ws" >/dev/null
+    herdr tab focus "$tab" >/dev/null
+    return 0
+  fi
+  pane="$(herdr tab create --workspace "$ws" --cwd "$dir" --label "$name" $focus | jq -r '.result.root_pane.pane_id')"
+  [ "$focus" = --focus ] && herdr workspace focus "$ws" >/dev/null
   start_review "$pane" "$url"
 }
 

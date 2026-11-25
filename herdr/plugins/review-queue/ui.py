@@ -5,7 +5,7 @@ Open WTTJ PRs awaiting my review, humans first then bots, grouped by repo.
 `ui.py --mine` shows my own open PRs instead (CI, review decision, unresolved comments, conflicts).
 Mouse: click selects, click again (or double-click) starts a review, right-click
 opens the PR in the browser, wheel scrolls. Keyboard: see FOOTER.
-Reviews are started by the sibling `review-queue --open URL` (herdr workspace).
+Reviews are started by the sibling `review-queue --open URL` (a tab of the actions space).
 """
 import curses
 import json
@@ -279,18 +279,24 @@ SESSION_WORD = {"working": "running", "blocked": "needs input", "idle": "done", 
 
 
 def read_sessions():
-    """{(repo, number): [(action, agent_status), ...]} from the herdr workspaces started by the buttons."""
+    """{(repo, number): [(action, agent_status), ...]} from the tabs of the actions space (and, as a fallback
+    when no actions space exists, the workspaces) started by the buttons."""
+    herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
     try:
-        out = subprocess.run([os.environ.get("HERDR_BIN_PATH", "herdr"), "workspace", "list"],
-                             capture_output=True, text=True, timeout=5, check=True).stdout
-        spaces = json.loads(out)["result"]["workspaces"]
+        def call(*args):
+            return json.loads(subprocess.run([herdr, *args], capture_output=True, text=True,
+                                             timeout=5, check=True).stdout)["result"]
+        spaces = call("workspace", "list")["workspaces"]
+        actions = next((w["workspace_id"] for w in spaces if w.get("label", "").endswith("  actions")), None)
+        items = ([t for t in call("tab", "list")["tabs"] if t.get("workspace_id") == actions]
+                 if actions else []) + spaces
     except Exception:
         return None
     found = {}
-    for ws in spaces:
-        m = SESSION_RE.match(ws.get("label", ""))
+    for it in items:
+        m = SESSION_RE.match(it.get("label", ""))
         if m:
-            found.setdefault((m.group(2), int(m.group(3))), []).append((m.group(1), ws.get("agent_status", "unknown")))
+            found.setdefault((m.group(2), int(m.group(3))), []).append((m.group(1), it.get("agent_status", "unknown")))
     return found
 
 
@@ -374,7 +380,7 @@ def main(stdscr):
         st.sel_url = rows[pr_idx[pos]][1]["url"]
 
     def start(pr, action):
-        """Start Claude on the PR in its own herdr workspace (see `review-queue --open URL ACTION`)."""
+        """Start Claude on the PR in its own tab of the actions space (see `review-queue --open URL ACTION`)."""
         subprocess.Popen([ENGINE, "--open", pr["url"], action], stdout=subprocess.DEVNULL,
                          stderr=subprocess.DEVNULL, start_new_session=True)
         st.opened.add(pr["url"])

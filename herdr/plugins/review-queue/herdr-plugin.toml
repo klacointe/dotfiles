@@ -23,6 +23,24 @@ title = "Review queue workspace"
 contexts = ["workspace"]
 command = ["bash", "actions.sh", "workspace"]
 
+[[actions]]
+id = "focus-requested"
+title = "Reviews: requested view"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "focus-requested"]
+
+[[actions]]
+id = "focus-mine"
+title = "Reviews: mine view"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "focus-mine"]
+
+[[actions]]
+id = "refresh"
+title = "Reviews: refresh list"
+contexts = ["workspace"]
+command = ["bash", "actions.sh", "refresh"]
+
 # Ctrl+click on a GitHub PR URL in any pane starts a review in a new workspace.
 [[actions]]
 id = "review-url"

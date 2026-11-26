@@ -26,19 +26,28 @@ ENGINE = os.path.join(HERE, "review-queue")
 # SEL is a marker bit translated by put(); override the grey with REVIEW_QUEUE_SEL_BG (256-colour index).
 SEL = curses.A_PROTECT
 SEL_BG = int(os.environ.get("REVIEW_QUEUE_SEL_BG", "238"))
-MINE = "--mine" in sys.argv
-CACHE = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
-                     "review-queue-mine.json" if MINE else "review-queue.json")
+START_MODE = "mine" if "--mine" in sys.argv else "requested"
+MODES = ("requested", "mine")   # the two views of the one list; Tab toggles, 1 / 2 jump
+
+
+def cache_path(mode):
+    return os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
+                        "review-queue-mine.json" if mode == "mine" else "review-queue.json")
 # Nerd Font glyphs (the terminal font is a Nerd Font)
 I_PR, I_EYE, I_USER, I_BOT = "\uf407", "\uf06e", "\uf007", "\uf544"
 I_OK, I_DRAFT, I_SYNC, I_FILTER, I_WARN = "\uf00c", "\uf040", "\uf021", "\uf0b0", "\uf071"
 I_X, I_DOT, I_UP, I_CHG, I_CIRC, I_COMMENT = "\uf00d", "\uf111", "\uf164", "\uf06a", "\uf017", "\uf075"
+# key that triggers each action button (shown on the button)
+ACTION_KEYS = {"review": "r", "rereview": "r", "analyze": "a", "reply": "c", "ci": "f", "browser": "b", "copy": "y"}
+PAGE_STEP = 6   # PRs per PgUp / PgDn press (the mouse wheel moves 1)
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
-# (key, label) pairs shown in the footer
-HINTS_MINE = (("2×click", "GitHub"), ("↵", "fix"), ("c", "comments"), ("f", "fix CI"), ("b", "browser"), ("y", "copy"),
-              ("/", "filter"), ("r", "refresh"), ("?", "legend"), ("q", "quit"))
-HINTS = (("2×click", "GitHub"), ("↵", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "browser"), ("y", "copy"),
-         ("/", "filter"), ("h", "bots"), ("r", "refresh"), ("?", "legend"), ("q", "quit"))
+# Two groups, never mixed: actions on the selected PR are the buttons of the PR panel (ACTION_KEYS shows their keys);
+# the footer only lists what acts on the list / window. When the panel is hidden (no selection, short pane) the footer
+# falls back to the PR keys too.
+HINTS_PR_MINE = (("↵", "fix"), ("r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "github"), ("y", "copy"))
+HINTS_PR = (("↵ r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "github"), ("y", "copy"))
+HINTS_LIST_MINE = (("tab 1 2", "view"), ("j k", "move"), ("/", "filter"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+HINTS_LIST = (("tab 1 2", "view"), ("j k", "move"), ("/", "filter"), ("h", "bots"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
 I_SEARCH, I_REPLY, I_WRENCH, I_LINK, I_COPY, I_PLAY, I_GLOBE = "\uf002", "\uf112", "\uf0ad", "\uf0c1", "\uf0c5", "\uf04b", "\uf0ac"
 PANEL_H = 6   # detail panel above the footer: rule, title, link, status, buttons, spacer
 CI_TEXT = {"SUCCESS": ("CI passing", "green"), "FAILURE": ("CI failing", "red"), "ERROR": ("CI error", "red"),
@@ -174,7 +183,7 @@ def fetch_requested():
     return prs, warn
 
 
-def report_caption(prs):
+def report_caption(prs, mode):
     """Sidebar caption for the reviews workspace: workspace tokens ($rq_req, $rq_mine, $rq_attn) that the herdr
     sidebar rows in config.toml render under the workspace name. Expires if this UI stops refreshing."""
     herdr = os.environ.get("HERDR_BIN_PATH", "herdr")
@@ -185,14 +194,14 @@ def report_caption(prs):
             ws = json.loads(out)["result"]["pane"]["workspace_id"]
         if not ws:
             return
-        if MINE:
+        if mode == "mine":
             attn = sum(1 for p in prs if not p["isDraft"] and needs_attention(p))
             tokens = {"rq_mine": f"{I_PR} {len(prs)} mine", "rq_attn": f"{I_WARN} {attn} to fix" if attn else None}
         else:
             humans = sum(1 for p in prs if not p["bot"] and not p.get("follow"))
             follow = sum(1 for p in prs if p.get("follow"))
             tokens = {"rq_req": f"{I_EYE} {humans} to review", "rq_fu": f"{I_REPLY} {follow} follow-up" if follow else None}
-        cmd = [herdr, "workspace", "report-metadata", ws, "--source", "user:review-queue-" + ("mine" if MINE else "requested"),
+        cmd = [herdr, "workspace", "report-metadata", ws, "--source", "user:review-queue-" + mode,
                "--ttl-ms", str(REFRESH * 2000)]
         for name, value in tokens.items():
             cmd += ["--token", f"{name}={value}"] if value else ["--clear-token", name]
@@ -201,7 +210,9 @@ def report_caption(prs):
         pass  # a missing caption must never break the list
 
 
-class State:
+class View:
+    """What one view (requested / mine) shows: its PRs, fetch state, selection and scroll."""
+
     def __init__(self):
         self.prs = []
         self.status = "loading…"
@@ -210,9 +221,22 @@ class State:
         self.error = None
         self.sel_url = None
         self.top = 0
+
+
+def _delegate(name):
+    return property(lambda self: getattr(self.view, name), lambda self, v: setattr(self.view, name, v))
+
+
+class State:
+    prs, status, updated, loading, error, sel_url, top = (_delegate(n) for n in (
+        "prs", "status", "updated", "loading", "error", "sel_url", "top"))
+
+    def __init__(self, mode):
+        self.mode = mode
+        self.views = {m: View() for m in MODES}
         self.filter = ""
         self.typing = False
-        self.hide_bots = False
+        self.hide_bots = True   # bots start collapsed to one header line (h expands)
         self.opened = set()
         self.msg = ""
         self.msg_at = 0.0
@@ -220,32 +244,43 @@ class State:
         self.sessions = {}
         self.sessions_at = 0.0
         self.legend = True
-        try:
-            with open(CACHE) as f:
-                self.prs = json.load(f)
-                self.status = "cached"
-        except (OSError, ValueError):
-            pass
-
-    def refresh(self):
-        if self.loading:
-            return
-        self.loading = True
-
-        def work():
+        for m, v in self.views.items():
             try:
-                self.prs, self.error = fetch_mine() if MINE else fetch_requested()
-                report_caption(self.prs)
-                self.updated = datetime.now()
-                os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-                with open(CACHE, "w") as f:
-                    json.dump(self.prs, f)
-            except Exception as e:  # keep showing the previous list
-                self.error = f"gh failed: {str(e)[:60]}"
-            finally:
-                self.loading = False
+                with open(cache_path(m)) as f:
+                    v.prs = json.load(f)
+                    v.status = "cached"
+            except (OSError, ValueError):
+                pass
 
-        threading.Thread(target=work, daemon=True).start()
+    @property
+    def view(self):
+        return self.views[self.mode]
+
+    @property
+    def mine(self):
+        return self.mode == "mine"
+
+    def refresh(self, only=None):
+        """Fetch both views (so the tab counts stay current), or just `only`."""
+        for mode in ([only] if only else MODES):
+            view = self.views[mode]
+            if view.loading:
+                continue
+            view.loading = True
+            threading.Thread(target=self._fetch, args=(mode, view), daemon=True).start()
+
+    def _fetch(self, mode, view):
+        try:
+            view.prs, view.error = fetch_mine() if mode == "mine" else fetch_requested()
+            report_caption(view.prs, mode)
+            view.updated = datetime.now()
+            os.makedirs(os.path.dirname(cache_path(mode)), exist_ok=True)
+            with open(cache_path(mode), "w") as f:
+                json.dump(view.prs, f)
+        except Exception as e:  # keep showing the previous list
+            view.error = f"gh failed: {str(e)[:60]}"
+        finally:
+            view.loading = False
 
     def flash(self, text):
         self.msg, self.msg_at = text, time.time()
@@ -254,7 +289,7 @@ class State:
         """Visible rows: ('head', text, kind) or ('pr', pr). kinds: human, follow, bot."""
         q = self.filter.lower()
         out = []
-        if MINE:
+        if self.mine:
             for kind, title in MINE_GROUPS:
                 group = [p for p in self.prs if bucket(p) == kind
                          and (not q or q in f'{p["repo"]} {p["title"]} {p["who"]} {p["number"]}'.lower())]
@@ -263,12 +298,12 @@ class State:
                     out += [("pr", p) for p in group]
             return out
         for kind, title in (("human", "Needs your review"), ("follow", "Reviewed by you"), ("bot", "Bots")):
-            if kind == "bot" and self.hide_bots:
-                continue
             group = [p for p in self.prs
                      if ("bot" if p["bot"] else "follow" if p.get("follow") else "human") == kind
                      and (not q or q in f'{p["repo"]} {p["title"]} {p["who"]} {p["number"]}'.lower())]
-            if group:
+            if group and kind == "bot" and self.hide_bots:
+                out.append(("head", f"{title} ({len(group)})  \u25b8 h to expand", kind))
+            elif group:
                 out.append(("head", f"{title} ({len(group)})", kind))
                 out += [("pr", p) for p in group]
         return out
@@ -321,9 +356,10 @@ def main(stdscr):
             curses.init_pair(10 + i, c, SEL_BG)
     DIM = curses.A_DIM
     stdscr.timeout(1000)
-    st = State()
-    if st.prs:
-        threading.Thread(target=report_caption, args=(st.prs,), daemon=True).start()
+    st = State(START_MODE)
+    for m, v in st.views.items():
+        if v.prs:
+            threading.Thread(target=report_caption, args=(v.prs, m), daemon=True).start()
     st.refresh()
     next_refresh = time.time() + REFRESH
 
@@ -344,13 +380,15 @@ def main(stdscr):
     def draw_legend(y, width):
         """Coloured legend, grouped by meaning; trailing groups are dropped when the pane is narrow."""
         sep = ("  │  ", DIM)
+        def label(text):   # group name as a grey chip, bold and not dimmed
+            return (f" {text} ", curses.A_BOLD | SEL)
         groups = [
-            [("CI ", DIM | curses.A_BOLD), (I_OK, GREEN), (" pass  ", DIM), (I_X, RED), (" fail  ", DIM), (I_DOT, YEL), (" running", DIM)],
-            [("review ", DIM | curses.A_BOLD), (I_UP, GREEN), (" approved  ", DIM), (I_CHG, RED), (" changes  ", DIM), (I_CIRC, DIM), (" pending", DIM)],
-            [(I_COMMENT, YEL), (" open threads", DIM)],
-            [(I_WARN, RED), (" conflict", DIM)],
+            [label("CI"), ("  ", 0), (I_OK, GREEN), ("  pass  ", 0), (I_X, RED), ("  fail  ", 0), (I_DOT, YEL), ("  running", 0)],
+            [(I_WARN, RED), ("  conflict", 0)],
+            [label("review"), ("  ", 0), (I_UP, GREEN), ("  approved  ", 0), (I_CHG, RED), ("  changes  ", 0), (I_CIRC, DIM), ("  pending", 0)],
+            [(I_COMMENT, YEL), ("  open threads", 0)],
         ]
-        if MINE:
+        if st.mine:
             groups.append([("names = requested reviewers", DIM)])
         x = 1
         for n, group in enumerate(groups):
@@ -361,6 +399,11 @@ def main(stdscr):
             for text, attr in seg:
                 put(y, x, text, attr)
                 x += len(text)
+
+    def switch_mode(mode):
+        if mode != st.mode:
+            st.mode = mode
+            st.filter, st.typing = "", False
 
     def layout():
         rows = st.rows()
@@ -390,7 +433,7 @@ def main(stdscr):
         return bool(pr.get("threads")) or bool(pr.get("follow")) or pr.get("decision") == "CHANGES_REQUESTED"
 
     def open_review(pr):
-        if MINE:  # my own PR: the primary action is whatever blocks it
+        if st.mine:  # my own PR: the primary action is whatever blocks it
             if pr.get("ci") in ("FAILURE", "ERROR"):
                 start(pr, "ci")
             elif has_comments(pr):
@@ -425,18 +468,18 @@ def main(stdscr):
     def buttons(pr):
         """(action, icon, label, enabled, primary) for the selected PR."""
         ci_bad = pr.get("ci") in ("FAILURE", "ERROR")
-        if MINE:
-            return [("reply", I_REPLY, "Address comments", has_comments(pr), has_comments(pr) and not ci_bad),
-                    ("ci", I_WRENCH, "Fix CI", ci_bad, ci_bad),
-                    ("analyze", I_SEARCH, "Analyze", True, False),
-                    ("browser", I_GLOBE, "Open on GitHub", True, False),
-                    ("copy", I_COPY, "Copy link", True, False)]
-        return [("rereview" if pr.get("follow") else "review", I_PLAY, "Re-review" if pr.get("follow") else "Review", True, True),
-                ("analyze", I_SEARCH, "Analyze", True, False),
-                ("reply", I_REPLY, "Address comments", bool(pr.get("threads")) or bool(pr.get("follow")), False),
-                ("ci", I_WRENCH, "Fix CI", ci_bad, False),
-                ("browser", I_GLOBE, "Open on GitHub", True, False),
-                ("copy", I_COPY, "Copy link", True, False)]
+        if st.mine:
+            return [("reply", I_REPLY, "comments", has_comments(pr), has_comments(pr) and not ci_bad),
+                    ("ci", I_WRENCH, "fix CI", ci_bad, ci_bad),
+                    ("analyze", I_SEARCH, "analyze", True, False),
+                    ("browser", I_GLOBE, "github", True, False),
+                    ("copy", I_COPY, "copy", True, False)]
+        return [("rereview" if pr.get("follow") else "review", I_PLAY, "re-review" if pr.get("follow") else "review", True, True),
+                ("analyze", I_SEARCH, "analyze", True, False),
+                ("reply", I_REPLY, "comments", bool(pr.get("threads")) or bool(pr.get("follow")), False),
+                ("ci", I_WRENCH, "fix CI", ci_bad, False),
+                ("browser", I_GLOBE, "github", True, False),
+                ("copy", I_COPY, "copy", True, False)]
 
     while True:
         h, w = stdscr.getmaxyx()
@@ -460,26 +503,54 @@ def main(stdscr):
             st.sessions_at = time.time()
         working = sum(1 for v in st.sessions.values() for _, a in v if a == "working")
         stdscr.erase()
-        stdscr.timeout(120 if (st.loading or working) else 1000)
+        stdscr.timeout(120 if (any(v.loading for v in st.views.values()) or working) else 1000)
         bots = sum(1 for p in st.prs if p["bot"])
         nfollow = sum(1 for p in st.prs if p.get("follow") and not p["bot"])
         humans = len(st.prs) - bots - nfollow
         spin = SPIN[int(time.time() * 8) % len(SPIN)]
-        state = f"{spin} refreshing" if st.loading else (f"{I_SYNC} {st.updated:%H:%M}" if st.updated else st.status)
+        state = f"{spin} refreshing" if st.loading else (f"{I_SYNC}  {st.updated:%H:%M}" if st.updated else st.status)
+        tab_counts = {}   # the number each view's tab shows
+        for m, v in st.views.items():
+            tab_counts[m] = len(v.prs) if m == "mine" else sum(1 for p in v.prs if not p["bot"])
+        tabhot = []       # clickable view tabs: (y, x0, x1, mode)
 
         # title bar: icon + name on the left, badges on the right
         put(0, 0, " " * w, SEL)
-        put(0, 1, f" {I_PR}  {'My pull requests' if MINE else 'Review queue'} ", curses.A_BOLD | SEL)
-        counts = (f"{I_WARN} {sum(1 for p in st.prs if bucket(p) == 'attn')}  {I_PR} {len(st.prs)}" if MINE
-                  else f"{I_USER} {humans}  {I_EYE} {nfollow}  {I_BOT} {bots}")
-        right = (f" {spin} {working} running  " if working else " ") + f"{counts}   {state} "
-        put(0, max(20, w - len(right) - 1), right, SEL)
+        put(0, 1, f" {I_PR} ", CYAN | curses.A_BOLD | curses.A_REVERSE)   # icon block
+        x = 5
+        for n, m in enumerate(MODES):
+            label = f" {n + 1} {m} {tab_counts[m]} "
+            if m == st.mode:
+                put(0, x, label, curses.A_BOLD | curses.A_REVERSE)
+            else:
+                put(0, x, label, DIM | SEL)
+            tabhot.append((0, x, x + len(label), m))
+            x += len(label) + 1
+        # right side, colour-coded: what is running, the counts (with words when there is room), when it was fetched
+        wide = w >= 100
+        if st.mine:
+            attn = sum(1 for p in st.prs if bucket(p) == "attn")
+            chips = [(I_WARN, RED, f"{attn}" + (" need attention" if wide else "")),
+                     (I_PR, CYAN, f"{len(st.prs)}" + (" open" if wide else ""))]
+        else:
+            chips = [(I_USER, GREEN, f"{humans}" + (" to review" if wide else "")),
+                     (I_EYE, YEL, f"{nfollow}" + (" follow-up" if wide else "")),
+                     (I_BOT, MAG, f"{bots}" + (" bots" if wide else ""))]
+        segs = []
+        if working:
+            segs += [(f"{spin} {working} running", CYAN | curses.A_BOLD), ("  \u2502  ", DIM)]
+        for n, (icon, col, text) in enumerate(chips):
+            segs += ([("  \u2502  ", DIM)] if n else []) + [(f"{icon}  ", col | curses.A_BOLD), (text, curses.A_BOLD)]
+        segs += [("  \u2502  ", DIM)]
+        segs += [(state + " ", DIM)]
+        x = max(20, w - sum(len(t) for t, _ in segs) - 1)
+        for text, attr in segs:
+            put(0, x, text, attr | SEL)
+            x += len(text)
         if st.error:
             put(1, 1, f"{I_WARN} {st.error} (showing the last list)", RED)
         elif st.filter or st.typing:
             put(1, 1, f"{I_FILTER} {st.filter}{'▏' if st.typing else ''}", YEL | curses.A_BOLD)
-        elif st.hide_bots and not MINE:
-            put(1, 1, f"{I_BOT} bots hidden (h to show)", DIM)
         elif st.legend:
             draw_legend(1, w)
         else:
@@ -516,7 +587,7 @@ def main(stdscr):
             put(y, 1, "▶" if i == sel else " ", GREEN | rev)
             put(y, 3, mark, mattr | rev)
             x = 6
-            for text, attr in ((trunc(p["repo"], rw).ljust(rw), CYAN | curses.A_BOLD), (f'#{p["number"]}'.ljust(6), DIM),
+            for text, attr in ((trunc(p["repo"], rw).ljust(rw), CYAN | (0 if p.get("follow") else curses.A_BOLD) | (curses.A_DIM if p.get("follow") else 0)), (f'#{p["number"]}'.ljust(6), DIM),
                                (p["age"].rjust(3), age_attr)):
                 put(y, x, text, attr | rev)
                 x += len(text) + 2
@@ -550,9 +621,16 @@ def main(stdscr):
                 x += len(pre)
                 title = title[m.end():]
             if p.get("follow"):  # keep room for the "‹you requested changes›" tag at the end of the row
-                reserve = 28 + len(ticket)
+                reserve = 36 + len(ticket)
                 title = trunc(title, max(12, w - x - reserve))
-            put(y, x, title, curses.A_BOLD * (not p["bot"]) | rev)
+            tattr = curses.A_BOLD * (not p["bot"]) | rev
+            sec = title.find("[security]")
+            if sec >= 0:   # security bumps stand out
+                put(y, x, title[:sec], tattr)
+                put(y, x + sec, "[security]", RED | curses.A_BOLD | rev)
+                put(y, x + sec + 10, title[sec + 10:], tattr)
+            else:
+                put(y, x, title, tattr)
             x += len(title)
             if ticket:
                 put(y, x, ticket, MAG | rev)
@@ -565,9 +643,10 @@ def main(stdscr):
                        "APPROVED": "you approved"}.get(p.get("mine"), "")
                 if p.get("new_commits"):
                     tag += (" · " if tag else "") + "new commits since"
-                put(y, x, f"  ‹{tag}›", YEL | rev)
-                x += len(tag) + 5
-            if MINE:
+                label = f"‹{tag}›"
+                put(y, max(x + 2, w - 2 - len(label)), label, YEL | rev)   # right-aligned column
+                x += len(label) + 2
+            if st.mine:
                 tags = []
                 if p.get("ci") in ("FAILURE", "ERROR"):
                     tags.append(("CI failing", RED))
@@ -598,7 +677,7 @@ def main(stdscr):
 
         if panel_h:
             py = h - 1 - panel_h
-            ptag = " PR details "
+            ptag = " This PR "
             put(py, 0, "─" * w, DIM)
             put(py, 2, ptag, DIM | curses.A_BOLD)
             put(py + 1, 2, f"{I_PR}  ", CYAN)
@@ -608,7 +687,7 @@ def main(stdscr):
             col = {"green": GREEN, "red": RED, "yellow": YEL, "dim": DIM}
             x = 2
             meta = [(f'{sel_pr["repo"]}#{sel_pr["number"]}', CYAN),
-                    ((f'reviewers: {sel_pr["who"]}' if MINE else f'by {sel_pr["who"]}'), YEL), (f'updated {sel_pr["age"]} ago', DIM)]
+                    ((f'reviewers: {sel_pr["who"]}' if st.mine else f'by {sel_pr["who"]}'), YEL), (f'updated {sel_pr["age"]} ago', DIM)]
             if sel_pr.get("detail"):
                 if sel_pr.get("ci") in CI_TEXT:
                     t, c = CI_TEXT[sel_pr["ci"]]
@@ -630,14 +709,19 @@ def main(stdscr):
                 x += len(text) + 3
             x = 2
             for action, icon, label, enabled, primary in buttons(sel_pr):
-                text = f" {icon}  {label} "
+                body = f" {icon}  {label} "
+                key = f" {ACTION_KEYS.get(action, '')} "
                 if enabled:
-                    attr = (GREEN | curses.A_BOLD | curses.A_REVERSE) if primary else SEL
-                    hot.append((py + 4, x, x + len(text), action))
-                else:
-                    attr = DIM | curses.A_UNDERLINE
-                put(py + 4, x, text, attr)
-                x += len(text) + 2
+                    if primary:   # flat green block
+                        battr = kattr = GREEN | curses.A_REVERSE | curses.A_BOLD
+                    else:         # flat grey block, key in bold yellow
+                        battr, kattr = SEL, YEL | curses.A_BOLD | SEL
+                    hot.append((py + 4, x, x + len(body) + len(key), action))
+                else:             # disabled: dim text
+                    battr = kattr = DIM
+                put(py + 4, x, body, battr)
+                put(py + 4, x + len(body), key, kattr)
+                x += len(body) + len(key) + 2
 
         # footer: highlighted keys; transient message wins for a few seconds
         put(h - 1, 0, " " * w, SEL)
@@ -645,7 +729,13 @@ def main(stdscr):
             put(h - 1, 1, f" {I_OK} {st.msg} ", GREEN | SEL | curses.A_BOLD)
         else:
             x = 1
-            for key, label in (HINTS_MINE if MINE else HINTS):
+            hints = (HINTS_LIST_MINE if st.mine else HINTS_LIST)
+            if not panel_h and sel_pr:   # no PR panel: its keys go in the footer, before the list ones
+                hints = (HINTS_PR_MINE if st.mine else HINTS_PR) + hints
+            tag = " keys " if (not panel_h and sel_pr) else " list "
+            put(h - 1, x, tag, DIM | SEL | curses.A_BOLD)
+            x += len(tag) + 1
+            for key, label in hints:
                 put(h - 1, x, f" {key} ", curses.A_BOLD | SEL)
                 put(h - 1, x + len(key) + 2, f"{label} ", SEL | DIM)
                 x += len(key) + len(label) + 4
@@ -677,8 +767,11 @@ def main(stdscr):
                 continue
             idx = st.top + (my - 2)
             if bstate & curses.BUTTON1_PRESSED:
+                tabhit = next((m for (hy, x0, x1, m) in tabhot if hy == my and x0 <= mx < x1), None)
                 hit = next((a for (hy, x0, x1, a) in hot if hy == my and x0 <= mx < x1), None)
-                if hit and sel_pr:
+                if tabhit:
+                    switch_mode(tabhit)
+                elif hit and sel_pr:
                     perform(sel_pr, hit)          # CTA button
                 elif 2 <= my < 2 + body_h and 0 <= idx < len(rows) and rows[idx][0] == "pr":
                     pr = rows[idx][1]
@@ -694,9 +787,9 @@ def main(stdscr):
             elif bstate & curses.BUTTON3_PRESSED and 2 <= my < 2 + body_h and 0 <= idx < len(rows) and rows[idx][0] == "pr":
                 browse(rows[idx][1])
             elif bstate & curses.BUTTON4_PRESSED:
-                move(-3)
+                move(-1)
             elif getattr(curses, "BUTTON5_PRESSED", 0) and bstate & curses.BUTTON5_PRESSED:
-                move(3)
+                move(1)
         elif ch in (ord("q"),):
             return
         elif ch in (curses.KEY_DOWN, ord("j")):
@@ -704,9 +797,9 @@ def main(stdscr):
         elif ch in (curses.KEY_UP, ord("k")):
             move(-1)
         elif ch == curses.KEY_NPAGE:
-            move(body_h)
+            move(PAGE_STEP)
         elif ch == curses.KEY_PPAGE:
-            move(-body_h)
+            move(-PAGE_STEP)
         elif ch in (curses.KEY_HOME, ord("g")):
             move(-10**6)
         elif ch in (curses.KEY_END, ord("G")):
@@ -717,6 +810,8 @@ def main(stdscr):
             browse(sel_pr)
         elif ch == ord("y") and sel_pr:
             copy_link(sel_pr)
+        elif ch == ord("r") and sel_pr:   # (re-)review: Review, or Re-review if already followed
+            start(sel_pr, "rereview" if sel_pr.get("follow") else "review")
         elif ch == ord("a") and sel_pr:
             start(sel_pr, "analyze")
         elif ch == ord("c") and sel_pr:
@@ -729,9 +824,17 @@ def main(stdscr):
                 start(sel_pr, "ci")
             else:
                 st.flash("CI is not failing on this PR")
-        elif ch in (ord("r"), 18):
+        elif ch == 18:   # ctrl+r
             st.refresh()
             next_refresh = time.time() + REFRESH
+        elif ch == 9:   # tab: the other view
+            switch_mode(MODES[(MODES.index(st.mode) + 1) % len(MODES)])
+        elif ch in (ord("1"), ord("2")):
+            switch_mode(MODES[ch - ord("1")])
+        elif ch == ord("w"):   # reload: restart the UI in place (new code, fresh fetch), on the same view
+            curses.endwin()
+            args = [a for a in sys.argv[1:] if a != "--mine"] + (["--mine"] if st.mine else [])
+            os.execv(sys.executable, [sys.executable, os.path.realpath(__file__)] + args)
         elif ch == ord("/"):
             st.typing = True
         elif ch == ord("?"):

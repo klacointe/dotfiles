@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Engine for the review-queue plugin (UI lives in ui.py, a stdlib-curses app).
 #
-#   review-queue --mine       the same UI for my own open PRs (CI, review decision, comments, conflicts)
-#   review-queue              run the UI in this pane (restarted if it crashes; q quits)
+#   review-queue              run the UI in this pane (restarted if it crashes; q quits). One list, two views:
+#                             requested (PRs waiting for my review) and mine (my own open PRs); Tab / 1 / 2 switch
+#   review-queue --mine       same, starting on the "mine" view
 #   review-queue --workspace  create/focus the "reviews" herdr workspace running the UI
+#   review-queue --focus requested|mine  jump to the reviews workspace on that view
+#   review-queue --refresh    refresh the list
 #   review-queue --restore    (startup hook) start the UI in a restored, idle "reviews" workspace
 #   review-queue --open URL [review|rereview|analyze|reply|ci]
 #                             start Claude on the PR in a new tab of the actions space (REVIEW_QUEUE_MODE=split|tab to change)
@@ -65,13 +68,13 @@ open_review_split() {
 }
 
 # Default: each review gets its own tab ("review repo#N") in the cockpit actions space, so the list stays
-# untouched. Re-clicking a PR focuses its existing tab. REVIEW_QUEUE_FOCUS=1 jumps to the new tab;
-# default leaves you on the list. Without an actions space, a workspace per review is created instead.
+# untouched. Re-clicking a PR focuses its existing tab. REVIEW_QUEUE_FOCUS=0 stays on the list;
+# default jumps to the new tab. Without an actions space, a workspace per review is created instead.
 open_review_workspace() {
   local url repo num dir name ws tab pane focus=--no-focus
   parse_pr "$1" || return 0
   name="$(label_prefix) $repo#$num"
-  [ "${REVIEW_QUEUE_FOCUS:-0}" = 1 ] && focus=--focus
+  [ "${REVIEW_QUEUE_FOCUS:-1}" = 1 ] && focus=--focus
   # The cockpit "actions" space (labelled "<icon>  actions") hosts the sessions, one tab each.
   ws="$(herdr workspace list | jq -r '[.result.workspaces[] | select(.label | endswith("  actions"))] | first | .workspace_id // empty')"
   if [ -z "$ws" ]; then   # no actions space pinned: a workspace of its own, as before
@@ -111,9 +114,9 @@ open_review_tab() {
   start_review "$pane" "$url"
 }
 
-# The "reviews" workspace has two tabs: "requested" (PRs waiting for my review) and "mine" (my own PRs).
-# Creates whatever is missing and starts a UI in any tab whose pane is just an idle shell
-# (after a reboot herdr restores the layout, not the running commands).
+# The "reviews" workspace has one tab, "queue", running the single list (requested / mine views inside it).
+# ensure_views creates whatever is missing, starts the UI in a tab that is just an idle shell (after a reboot herdr
+# restores the layout, not the running commands), and closes the old separate "mine" tab of the two-tab layout.
 view_tab() {  # $1 = workspace id, $2 = label -> tab id (empty if none)
   herdr tab list | jq -r --arg w "$1" --arg l "$2" '[.result.tabs[] | select(.workspace_id==$w and .label==$l)] | first | .tab_id // empty'
 }
@@ -131,40 +134,63 @@ start_view() {  # $1 = tab id, $2 = command, $3 = "fresh" if the tab was just cr
 }
 
 ensure_views() {  # $1 = focus | nofocus
-  local ws req mine fresh_req=fresh first
+  local ws tab old fresh=""
   ws="$(herdr workspace list | jq -r --arg l "$LABEL" '[.result.workspaces[] | select(.label==$l or .label=="reviews")] | first | .workspace_id // empty')"
   [ -n "$ws" ] && herdr workspace rename "$ws" "$LABEL" >/dev/null   # old plain "reviews" label -> with the icon
   if [ -z "$ws" ]; then
     local out
     out="$(herdr workspace create --label "$LABEL" --cwd "$ROOT" --no-focus)"
     ws="$(jq -r '.result.workspace.workspace_id' <<<"$out")"
-    req="$(jq -r '.result.tab.tab_id' <<<"$out")"
-    herdr tab rename "$req" requested >/dev/null
+    tab="$(jq -r '.result.tab.tab_id' <<<"$out")"
+    fresh=fresh
   else
-    fresh_req=""
-    req="$(view_tab "$ws" requested)"
-    if [ -z "$req" ]; then   # first start with this layout: the existing first tab becomes "requested"
-      first="$(herdr tab list | jq -r --arg w "$ws" '[.result.tabs[] | select(.workspace_id==$w)] | first | .tab_id // empty')"
-      req="$first"
-      [ -n "$req" ] && herdr tab rename "$req" requested >/dev/null
-    fi
+    tab="$(view_tab "$ws" queue)"
+    [ -n "$tab" ] || tab="$(view_tab "$ws" requested)"   # old layout: its first tab becomes the queue
+    [ -n "$tab" ] || tab="$(herdr tab list | jq -r --arg w "$ws" '[.result.tabs[] | select(.workspace_id==$w and .label!="mine")] | first | .tab_id // empty')"
+    old="$(view_tab "$ws" mine)"
+    [ -n "$old" ] && [ "$old" != "$tab" ] && herdr tab close "$old" >/dev/null 2>&1
   fi
-  mine="$(view_tab "$ws" mine)"
-  if [ -z "$mine" ]; then
-    mine="$(herdr tab create --workspace "$ws" --cwd "$ROOT" --label mine --no-focus | jq -r '.result.tab.tab_id')"
-    start_view "$mine" "review-queue --mine" fresh
-  else
-    start_view "$mine" "review-queue --mine"
+  if [ -z "$tab" ]; then
+    tab="$(herdr tab create --workspace "$ws" --cwd "$ROOT" --label queue --no-focus | jq -r '.result.tab.tab_id')"
+    fresh=fresh
   fi
-  [ -n "$req" ] && start_view "$req" "review-queue" $fresh_req
-  [ -n "$req" ] && herdr tab rename "$req" requested >/dev/null   # again: the tab-titles plugin may have renamed it meanwhile
+  herdr tab rename "$tab" queue >/dev/null
+  start_view "$tab" "review-queue" $fresh
+  herdr tab rename "$tab" queue >/dev/null   # again: the tab-titles plugin may have renamed it meanwhile
   if [ "$1" = focus ]; then
     herdr workspace focus "$ws" >/dev/null
-    [ -n "$req" ] && herdr tab focus "$req" >/dev/null
+    herdr tab focus "$tab" >/dev/null
   fi
 }
 
 ensure_workspace() { ensure_views focus; }
+
+# Jump to one view ("requested" or "mine") of the list, creating the workspace if needed: focus it, then press
+# the view's key (1 / 2) in the list.
+focus_view() {  # $1 = requested | mine
+  local ws tab pane key=1
+  [ "${1:-requested}" = mine ] && key=2
+  ensure_views nofocus
+  ws="$(herdr workspace list | jq -r --arg l "$LABEL" '[.result.workspaces[] | select(.label==$l)] | first | .workspace_id // empty')"
+  [ -n "$ws" ] || return 0
+  tab="$(view_tab "$ws" queue)"
+  herdr workspace focus "$ws" >/dev/null
+  [ -n "$tab" ] || return 0
+  herdr tab focus "$tab" >/dev/null
+  pane="$(herdr pane list | jq -r --arg t "$tab" '[.result.panes[] | select(.tab_id==$t)] | first | .pane_id // empty')"
+  [ -n "$pane" ] && herdr pane send-keys "$pane" "$key"
+}
+
+# Ask the list to refresh (sends its ctrl+r key).
+refresh_views() {
+  local ws pane tab
+  ws="$(herdr workspace list | jq -r --arg l "$LABEL" '[.result.workspaces[] | select(.label==$l)] | first | .workspace_id // empty')"
+  [ -n "$ws" ] || return 0
+  for tab in $(herdr tab list | jq -r --arg w "$ws" '.result.tabs[] | select(.workspace_id==$w) | .tab_id'); do
+    pane="$(herdr pane list | jq -r --arg t "$tab" '[.result.panes[] | select(.tab_id==$t)] | first | .pane_id // empty')"
+    [ -n "$pane" ] && herdr pane send-keys "$pane" ctrl+r
+  done
+}
 
 # Startup hook: wait for herdr to finish restoring the session, then bring the views back. No focus change.
 restore_workspace() { sleep 2; ensure_views nofocus; }
@@ -184,6 +210,8 @@ case "${1:-}" in
   --open)      ACTION="${3:-review}"; open_review "${2:-}" ;;
   --open-tab)  open_review_tab "${2:-}" ;;
   --workspace) ensure_workspace ;;
+  --focus)     focus_view "${2:-requested}" ;;
+  --refresh)   refresh_views ;;
   --restore)   restore_workspace ;;
   --mine)      run_ui --mine ;;
   *)           run_ui ;;

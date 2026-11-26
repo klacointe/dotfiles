@@ -8,7 +8,10 @@ export PATH="$HOME/.local/bin:$PATH"   # gh, jq, claude
 case "${1:-}" in
   open)       "$herdr_bin" plugin pane open --plugin "${HERDR_PLUGIN_ID:-wttj.review-queue}" --entrypoint list ;;
   workspace)  "$here/review-queue" --workspace ;;
+  focus-requested) "$here/review-queue" --focus requested ;;
+  focus-mine) "$here/review-queue" --focus mine ;;
+  refresh)    "$here/review-queue" --refresh ;;
   restore)    "$here/review-queue" --restore ;;
   review-url) "$here/review-queue" --open "${HERDR_PLUGIN_CLICKED_URL:?no clicked url}" ;;
-  *) echo "usage: actions.sh open|workspace|restore|review-url" >&2; exit 2 ;;
+  *) echo "usage: actions.sh open|workspace|focus-requested|focus-mine|refresh|restore|review-url" >&2; exit 2 ;;
 esac

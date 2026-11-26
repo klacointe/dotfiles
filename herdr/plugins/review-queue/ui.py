@@ -38,16 +38,16 @@ I_PR, I_EYE, I_USER, I_BOT = "\uf407", "\uf06e", "\uf007", "\uf544"
 I_OK, I_DRAFT, I_SYNC, I_FILTER, I_WARN = "\uf00c", "\uf040", "\uf021", "\uf0b0", "\uf071"
 I_X, I_DOT, I_UP, I_CHG, I_CIRC, I_COMMENT = "\uf00d", "\uf111", "\uf164", "\uf06a", "\uf017", "\uf075"
 # key that triggers each action button (shown on the button)
-ACTION_KEYS = {"review": "r", "rereview": "r", "analyze": "a", "reply": "c", "ci": "f", "browser": "b", "copy": "y"}
+ACTION_KEYS = {"review": "r", "rereview": "r", "analyze": "a", "reply": "c", "ci": "f", "browser": "o", "copy": "y"}
 PAGE_STEP = 6   # PRs per PgUp / PgDn press (the mouse wheel moves 1)
 SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 # Two groups, never mixed: actions on the selected PR are the buttons of the PR panel (ACTION_KEYS shows their keys);
 # the footer only lists what acts on the list / window. When the panel is hidden (no selection, short pane) the footer
 # falls back to the PR keys too.
-HINTS_PR_MINE = (("↵", "fix"), ("r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "github"), ("y", "copy"))
-HINTS_PR = (("↵ r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("b", "github"), ("y", "copy"))
-HINTS_LIST_MINE = (("tab 1 2", "view"), ("j k", "move"), ("/", "filter"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
-HINTS_LIST = (("tab 1 2", "view"), ("j k", "move"), ("/", "filter"), ("h", "bots"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+HINTS_PR_MINE = (("↵", "fix"), ("r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("o", "github"), ("y", "copy"))
+HINTS_PR = (("↵ r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("o", "github"), ("y", "copy"))
+HINTS_LIST_MINE = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+HINTS_LIST = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("h", "bots"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
 I_SEARCH, I_REPLY, I_WRENCH, I_LINK, I_COPY, I_PLAY, I_GLOBE = "\uf002", "\uf112", "\uf0ad", "\uf0c1", "\uf0c5", "\uf04b", "\uf0ac"
 PANEL_H = 6   # detail panel above the footer: rule, title, link, status, buttons, spacer
 CI_TEXT = {"SUCCESS": ("CI passing", "green"), "FAILURE": ("CI failing", "red"), "ERROR": ("CI error", "red"),
@@ -509,9 +509,6 @@ def main(stdscr):
         humans = len(st.prs) - bots - nfollow
         spin = SPIN[int(time.time() * 8) % len(SPIN)]
         state = f"{spin} refreshing" if st.loading else (f"{I_SYNC}  {st.updated:%H:%M}" if st.updated else st.status)
-        tab_counts = {}   # the number each view's tab shows
-        for m, v in st.views.items():
-            tab_counts[m] = len(v.prs) if m == "mine" else sum(1 for p in v.prs if not p["bot"])
         tabhot = []       # clickable view tabs: (y, x0, x1, mode)
 
         # title bar: icon + name on the left, badges on the right
@@ -519,7 +516,7 @@ def main(stdscr):
         put(0, 1, f" {I_PR} ", CYAN | curses.A_BOLD | curses.A_REVERSE)   # icon block
         x = 5
         for n, m in enumerate(MODES):
-            label = f" {n + 1} {m} {tab_counts[m]} "
+            label = f"  {m}  "
             if m == st.mode:
                 put(0, x, label, curses.A_BOLD | curses.A_REVERSE)
             else:
@@ -732,9 +729,6 @@ def main(stdscr):
             hints = (HINTS_LIST_MINE if st.mine else HINTS_LIST)
             if not panel_h and sel_pr:   # no PR panel: its keys go in the footer, before the list ones
                 hints = (HINTS_PR_MINE if st.mine else HINTS_PR) + hints
-            tag = " keys " if (not panel_h and sel_pr) else " list "
-            put(h - 1, x, tag, DIM | SEL | curses.A_BOLD)
-            x += len(tag) + 1
             for key, label in hints:
                 put(h - 1, x, f" {key} ", curses.A_BOLD | SEL)
                 put(h - 1, x + len(key) + 2, f"{label} ", SEL | DIM)
@@ -804,9 +798,9 @@ def main(stdscr):
             move(-10**6)
         elif ch in (curses.KEY_END, ord("G")):
             move(10**6)
-        elif ch in (10, 13, ord("o")) and sel_pr:
+        elif ch in (10, 13) and sel_pr:
             open_review(sel_pr)
-        elif ch == ord("b") and sel_pr:
+        elif ch in (ord("o"), ord("b")) and sel_pr:   # open the PR on github.com
             browse(sel_pr)
         elif ch == ord("y") and sel_pr:
             copy_link(sel_pr)

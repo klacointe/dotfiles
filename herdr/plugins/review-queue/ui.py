@@ -8,6 +8,7 @@ opens the PR in the browser, wheel scrolls. Keyboard: see FOOTER.
 Reviews are started by the sibling `review-queue --open URL` (a tab of the actions space).
 """
 import curses
+import glob
 import json
 import os
 import re
@@ -34,7 +35,7 @@ def cache_path(mode):
     return os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")),
                         "review-queue-mine.json" if mode == "mine" else "review-queue.json")
 # Nerd Font glyphs (the terminal font is a Nerd Font)
-I_PR, I_EYE, I_USER, I_BOT = "\uf407", "\uf06e", "\uf007", "\uf544"
+I_PR, I_EYE, I_USER, I_BOT = "\uf407", "\uf06e", "\uf007", "\U000f06a9"   # bot: nf-md-robot
 I_OK, I_DRAFT, I_SYNC, I_FILTER, I_WARN = "\uf00c", "\uf040", "\uf021", "\uf0b0", "\uf071"
 I_X, I_DOT, I_UP, I_CHG, I_CIRC, I_COMMENT = "\uf00d", "\uf111", "\uf164", "\uf06a", "\uf017", "\uf075"
 # key that triggers each action button (shown on the button)
@@ -48,6 +49,7 @@ HINTS_PR_MINE = (("↵", "fix"), ("r", "review"), ("a", "analyze"), ("c", "comme
 HINTS_PR = (("↵ r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("o", "github"), ("y", "copy"))
 HINTS_LIST_MINE = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
 HINTS_LIST = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("h", "bots"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+I_COIN, I_USD = "\uf2db", "\uf155"   # tokens (microchip), dollar
 I_SEARCH, I_REPLY, I_WRENCH, I_LINK, I_COPY, I_PLAY, I_GLOBE = "\uf002", "\uf112", "\uf0ad", "\uf0c1", "\uf0c5", "\uf04b", "\uf0ac"
 PANEL_H = 6   # detail panel above the footer: rule, title, link, status, buttons, spacer
 CI_TEXT = {"SUCCESS": ("CI passing", "green"), "FAILURE": ("CI failing", "red"), "ERROR": ("CI error", "red"),
@@ -147,7 +149,7 @@ def fetch_mine():
 def fetch_requested():
     """(prs, warning). Cheap search for the whole list, GraphQL for CI/review details on human PRs."""
     base = gh_json(["search", "prs", "--review-requested=@me", "--state=open", f"--owner={OWNER}",
-                    "--limit", "100", "--json", FIELDS])
+                    "--limit", "1000", "--json", FIELDS])
     warn = None
     follow = []
     try:
@@ -210,6 +212,104 @@ def report_caption(prs, mode):
         pass  # a missing caption must never break the list
 
 
+# Tokens used by the Claude sessions this list started. A session belongs to the list when the first prompt of its
+# transcript is one of prompt_for()'s (see the engine); tokens are summed from the transcript's usage records
+# (input + output + cache writes + cache reads).
+PROJECTS = os.path.expanduser("~/.claude/projects")
+LIST_PROMPT_RE = re.compile(r"^(/code-review https://github\.com/|Analyze the pull request https://github\.com/|"
+                            r"Go through the unresolved review comments on the pull request |"
+                            r"CI is failing on the pull request https://github\.com/)")
+PR_URL_RE = re.compile(r"https://github\.com/\S+?/pull/\d+")
+_pr_of = {}       # transcript path -> the PR url the list started it on, or None
+_counted = {}     # transcript path -> (size, tokens): a transcript is only re-read when it grew
+
+
+def pr_of_session(path):
+    if path in _pr_of:
+        return _pr_of[path]
+    first = ""
+    try:
+        with open(path) as f:
+            for line in f:
+                d = json.loads(line)
+                if d.get("type") == "user":
+                    m = d["message"]["content"]
+                    first = m if isinstance(m, str) else " ".join(b.get("text", "") for b in m if isinstance(b, dict))
+                    if first.strip() and not first.startswith("<"):
+                        break
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    url = PR_URL_RE.search(first)
+    _pr_of[path] = url.group(0) if url and LIST_PROMPT_RE.match(first.strip()) else None
+    return _pr_of[path]
+
+
+def session_tokens(path):
+    try:
+        size = os.path.getsize(path)
+    except OSError:
+        return 0
+    if path in _counted and _counted[path][0] == size:
+        return _counted[path][1]
+    total, seen = 0, set()
+    try:
+        with open(path) as f:
+            for line in f:
+                try:
+                    d = json.loads(line)
+                except ValueError:
+                    continue
+                m = d.get("message")
+                if d.get("type") == "assistant" and isinstance(m, dict) and isinstance(m.get("usage"), dict):
+                    key = m.get("id") or d.get("uuid")
+                    if key in seen:   # a streamed answer is logged more than once
+                        continue
+                    seen.add(key)
+                    u = m["usage"]
+                    total += sum(u.get(k) or 0 for k in ("input_tokens", "output_tokens",
+                                                         "cache_creation_input_tokens", "cache_read_input_tokens"))
+    except OSError:
+        pass
+    _counted[path] = (size, total)
+    return total
+
+
+COST_DIR = os.path.join(os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache")), "cockpit", "costs")
+
+
+def session_usd(path):
+    """USD cockpit recorded for the session (~/.cache/cockpit/costs/<session id>.json is {ticket: usd}), else 0."""
+    try:
+        with open(os.path.join(COST_DIR, os.path.basename(path)[:-6] + ".json")) as f:
+            return sum(json.load(f).values())
+    except (OSError, ValueError, TypeError):
+        return 0.0
+
+
+def sessions_usage():
+    """{pr url: (tokens, usd)} of the Claude sessions started from this list."""
+    by_url = {}
+    for path in glob.glob(os.path.join(PROJECTS, "*", "*.jsonl")):
+        url = pr_of_session(path)
+        if url:
+            t, c = by_url.get(url, (0, 0.0))
+            by_url[url] = (t + session_tokens(path), c + session_usd(path))
+    return by_url
+
+
+def fmt_usage(tokens, usd, icons=False):
+    """'299k · $0.41', or '299k  <dollar icon> 0.41' with icons (the price only when cockpit knows it)."""
+    if usd < 0.005:
+        return fmt_tokens(tokens)
+    return fmt_tokens(tokens) + (f"  {I_USD} {usd:.2f}" if icons else f" · ${usd:.2f}")
+
+
+def fmt_tokens(n):
+    if n >= 1_000_000:
+        return f"{n / 1_000_000:.1f}M"
+    return f"{n / 1000:.0f}k" if n >= 1000 else str(n)
+
+
 class View:
     """What one view (requested / mine) shows: its PRs, fetch state, selection and scroll."""
 
@@ -244,6 +344,7 @@ class State:
         self.sessions = {}
         self.sessions_at = 0.0
         self.legend = True
+        self.usage = {}   # {pr url: (tokens, usd)} for the sessions the list started
         for m, v in self.views.items():
             try:
                 with open(cache_path(m)) as f:
@@ -262,12 +363,19 @@ class State:
 
     def refresh(self, only=None):
         """Fetch both views (so the tab counts stay current), or just `only`."""
+        threading.Thread(target=self._tokens, daemon=True).start()
         for mode in ([only] if only else MODES):
             view = self.views[mode]
             if view.loading:
                 continue
             view.loading = True
             threading.Thread(target=self._fetch, args=(mode, view), daemon=True).start()
+
+    def _tokens(self):
+        try:
+            self.usage = sessions_usage()
+        except Exception:
+            pass
 
     def _fetch(self, mode, view):
         try:
@@ -533,6 +641,9 @@ def main(stdscr):
             chips = [(I_USER, GREEN, f"{humans}" + (" to review" if wide else "")),
                      (I_EYE, YEL, f"{nfollow}" + (" follow-up" if wide else "")),
                      (I_BOT, MAG, f"{bots}" + (" bots" if wide else ""))]
+        if st.usage:   # tokens and price of the Claude sessions started from this list
+            used = (sum(t for t, _ in st.usage.values()), sum(c for _, c in st.usage.values()))
+            chips.append((I_COIN, CYAN, fmt_usage(*used, icons=True)))
         segs = []
         if working:
             segs += [(f"{spin} {working} running", CYAN | curses.A_BOLD), ("  \u2502  ", DIM)]
@@ -597,13 +708,14 @@ def main(stdscr):
                 put(y, x, cg, ca | rev)
                 put(y, x + 2, dg, da | rev)
                 if p.get("threads"):
-                    put(y, x + 4, f'{I_COMMENT}{p["threads"]}', YEL | curses.A_BOLD | rev)
+                    put(y, x + 4, f'{I_COMMENT} {p["threads"]}', YEL | curses.A_BOLD | rev)
                 if p.get("conflict"):
                     put(y, x + 8, I_WARN, RED | rev)
             x += 11
             who = trunc(p["who"], aw).ljust(aw)
             put(y, x, who, (DIM if p["bot"] else YEL) | rev)
             x += len(who) + 2
+            cost_txt = fmt_usage(*st.usage[p["url"]]) if st.usage.get(p["url"]) else ""   # tokens · price on this PR
             # title: coloured conventional-commit prefix, dim ticket id at the end
             title = p["title"]
             ticket = ""
@@ -617,9 +729,30 @@ def main(stdscr):
                 put(y, x, pre, col | curses.A_BOLD | rev)
                 x += len(pre)
                 title = title[m.end():]
-            if p.get("follow"):  # keep room for the "‹you requested changes›" tag at the end of the row
-                reserve = 36 + len(ticket)
-                title = trunc(title, max(12, w - x - reserve))
+            # what follows the title on the row: tags, ticket, session badges and the right-aligned tokens / price
+            fol_label = ""
+            if p.get("follow"):
+                tag = {"CHANGES_REQUESTED": "you requested changes", "COMMENTED": "you commented",
+                       "APPROVED": "you approved"}.get(p.get("mine"), "")
+                if p.get("new_commits"):
+                    tag += (" · " if tag else "") + "new commits since"
+                fol_label = f"‹{tag}›"
+            mine_tags = []
+            if st.mine:
+                if p.get("ci") in ("FAILURE", "ERROR"):
+                    mine_tags.append(("CI failing", RED))
+                if p.get("decision") == "CHANGES_REQUESTED":
+                    mine_tags.append(("changes requested", RED))
+                if p.get("threads"):
+                    mine_tags.append((f'{p["threads"]} unresolved', YEL))
+                if p.get("conflict"):
+                    mine_tags.append(("conflict", RED))
+                if p.get("decision") == "APPROVED" and not needs_attention(p) and not p["isDraft"]:
+                    mine_tags.append(("approved", GREEN))
+            tail = ((len(cost_txt) + 2 if cost_txt else 0) + (len(fol_label) + 4 if fol_label else 0) + len(ticket)
+                    + (7 if p["isDraft"] else 0) + sum(len(t) + 5 for t, _ in mine_tags)
+                    + sum(len(a) + len(SESSION_WORD.get(stt, stt)) + 5 for a, stt in sess))
+            title = trunc(title, max(8, w - x - 3 - tail))   # ellipsis: the tail, tokens and price always fit
             tattr = curses.A_BOLD * (not p["bot"]) | rev
             sec = title.find("[security]")
             if sec >= 0:   # security bumps stand out
@@ -635,26 +768,13 @@ def main(stdscr):
             if p["isDraft"]:
                 put(y, x, "  draft", DIM | rev)
                 x += 7
-            if p.get("follow"):
-                tag = {"CHANGES_REQUESTED": "you requested changes", "COMMENTED": "you commented",
-                       "APPROVED": "you approved"}.get(p.get("mine"), "")
-                if p.get("new_commits"):
-                    tag += (" · " if tag else "") + "new commits since"
-                label = f"‹{tag}›"
-                put(y, max(x + 2, w - 2 - len(label)), label, YEL | rev)   # right-aligned column
-                x += len(label) + 2
+            if fol_label:
+                put(y, max(x + 2, w - 2 - len(fol_label) - (len(cost_txt) + 2 if cost_txt else 0)), fol_label, YEL | rev)   # right-aligned column
+                x += len(fol_label) + 2
+            if cost_txt:
+                put(y, w - 2 - len(cost_txt), cost_txt, CYAN | rev)
             if st.mine:
-                tags = []
-                if p.get("ci") in ("FAILURE", "ERROR"):
-                    tags.append(("CI failing", RED))
-                if p.get("decision") == "CHANGES_REQUESTED":
-                    tags.append(("changes requested", RED))
-                if p.get("threads"):
-                    tags.append((f'{p["threads"]} unresolved', YEL))
-                if p.get("conflict"):
-                    tags.append(("conflict", RED))
-                if p.get("decision") == "APPROVED" and not needs_attention(p) and not p["isDraft"]:
-                    tags.append(("approved", GREEN))
+                tags = mine_tags
                 for text, col in tags:
                     put(y, x, f"  [{text}]", col | curses.A_BOLD | rev)
                     x += len(text) + 5
@@ -685,6 +805,8 @@ def main(stdscr):
             x = 2
             meta = [(f'{sel_pr["repo"]}#{sel_pr["number"]}', CYAN),
                     ((f'reviewers: {sel_pr["who"]}' if st.mine else f'by {sel_pr["who"]}'), YEL), (f'updated {sel_pr["age"]} ago', DIM)]
+            if st.usage.get(sel_pr["url"]):
+                meta.append((f"{I_COIN}  " + fmt_usage(*st.usage[sel_pr["url"]], icons=True), CYAN))
             if sel_pr.get("detail"):
                 if sel_pr.get("ci") in CI_TEXT:
                     t, c = CI_TEXT[sel_pr["ci"]]
@@ -733,6 +855,14 @@ def main(stdscr):
                 put(h - 1, x, f" {key} ", curses.A_BOLD | SEL)
                 put(h - 1, x + len(key) + 2, f"{label} ", SEL | DIM)
                 x += len(key) + len(label) + 4
+            # right: what the icon at the left of a PR row means (open / draft / Claude session states)
+            status = [(I_PR, CYAN), (" open   ", 0), (I_DRAFT, DIM), (" draft   ", 0), (SPIN[0], CYAN), (" agent   ", 0),
+                      ("?", YEL | curses.A_BOLD), (" input   ", 0), (I_OK, GREEN), (" done ", 0)]
+            sx = w - sum(len(t) for t, _ in status) - 1
+            if sx > x + 2:
+                for text, attr in status:
+                    put(h - 1, sx, text, attr | SEL)
+                    sx += len(text)
         stdscr.refresh()
 
         if time.time() >= next_refresh:

@@ -65,6 +65,11 @@
   "e2eBrowser": "terminal-browser",
   "spaces": [
     "inbox",
+    {
+      "name": "reviews",
+      "cwd": "~/dev/WTTJ",
+      "icon": ""
+    },
     "terminal",
     "actions",
     "to-do",

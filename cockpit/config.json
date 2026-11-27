@@ -58,7 +58,7 @@
     "server": "claude.ai Datadog"
   },
   "mail": {
-    "enabled": true,
+    "enabled": false,
     "name": "Gmail",
     "server": "claude.ai Gmail"
   },
@@ -71,20 +71,18 @@
       "icon": ""
     },
     "terminal",
-    "actions",
-    "to-do",
-    "runbook",
-    "meetings",
-    "monitor",
-    "routines",
-    "review",
-    "mail",
     {
       "name": "dotfiles",
       "cwd": "~/dotfiles",
       "icon": "",
       "key": "prefix+shift+d"
-    }
+    },
+    "actions",
+    "review",
+    "to-do",
+    "meetings",
+    "monitor",
+    "routines"
   ],
   "agents": {
     "default": "claude"

@@ -65,6 +65,7 @@ symlinks:
 		herdr integration install opencode; \
 		herdr plugin link ~/dotfiles/herdr/plugins/review-queue; \
 		herdr plugin link ~/dotfiles/herdr/plugins/tab-titles; \
+		herdr plugin link ~/dotfiles/herdr/plugins/pinned-spaces; \
 	else \
 		echo "herdr not installed, skipping integrations"; \
 	fi

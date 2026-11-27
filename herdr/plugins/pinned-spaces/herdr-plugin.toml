@@ -1,0 +1,14 @@
+id = "wttj.pinned-spaces"
+name = "Pinned spaces"
+version = "0.1.0"
+min_herdr_version = "0.9.0"
+description = "Recreate cockpit's pinned spaces when one disappears because its last pane exited"
+platforms = ["linux"]
+
+# Cockpit recreates a pinned space on workspace.closed, but herdr 0.9.5 sends no workspace.closed (nor tab.closed or
+# pane.closed) when a space goes away because its last pane exited. When that space was in view, herdr moves the
+# focus to another one, which does send tab.focused: check.sh then runs cockpit's ensure-spaces.sh, only when a pinned
+# space is missing.
+[[events]]
+on = "tab.focused"
+command = ["bash", "check.sh"]

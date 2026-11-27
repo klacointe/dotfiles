@@ -26,6 +26,9 @@ missing() {
     | $names[] | select(. as $n | $labels | any(endswith("  " + $n)) | not)'
 }
 
+# On pane.exited the space the pane was in may not be gone yet.
+[ "${1:-}" = exited ] && sleep 1
+
 [ -n "$(missing)" ] || exit 0
 
 # Focus events come in bursts: one run at a time, the others leave.

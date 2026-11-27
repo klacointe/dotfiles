@@ -6,9 +6,15 @@ description = "Recreate cockpit's pinned spaces when one disappears because its 
 platforms = ["linux"]
 
 # Cockpit recreates a pinned space on workspace.closed, but herdr 0.9.5 sends no workspace.closed (nor tab.closed or
-# pane.closed) when a space goes away because its last pane exited. When that space was in view, herdr moves the
-# focus to another one, which does send tab.focused: check.sh then runs cockpit's ensure-spaces.sh, only when a pinned
-# space is missing.
+# pane.closed) when a space goes away because its last pane exited. It does send pane.exited, and tab.focused when that
+# space was in view and the focus moves to another one: check.sh then runs cockpit's ensure-spaces.sh, only when a
+# pinned space is missing.
 [[events]]
 on = "tab.focused"
 command = ["bash", "check.sh"]
+
+# Covers a space emptied while another one is in view, where no focus moves. pane.exited can arrive before herdr
+# removes the space, so check.sh waits a moment first.
+[[events]]
+on = "pane.exited"
+command = ["bash", "check.sh", "exited"]

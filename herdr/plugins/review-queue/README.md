@@ -26,7 +26,7 @@ approved, resolved or pushed without your approval.
 | `g` / `G`, `Home` / `End` | first / last PR |
 | `/` | filter (`↵` keeps it, `Esc` clears it) |
 | `h` | expand / collapse the bots section (requested) |
-| `ctrl+r` | refresh both views |
+| `R` (or `ctrl+r`) | refresh both views |
 | `w` | reload the list (restart it in place, same view; picks up code changes) |
 | `?` | show / hide the CI and review symbol legend |
 | `q` | quit |

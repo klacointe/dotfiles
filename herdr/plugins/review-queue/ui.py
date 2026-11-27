@@ -47,8 +47,8 @@ SPIN = "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
 # falls back to the PR keys too.
 HINTS_PR_MINE = (("↵", "fix"), ("r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("o", "github"), ("y", "copy"))
 HINTS_PR = (("↵ r", "review"), ("a", "analyze"), ("c", "comments"), ("f", "fix CI"), ("o", "github"), ("y", "copy"))
-HINTS_LIST_MINE = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
-HINTS_LIST = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("h", "bots"), ("^r", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+HINTS_LIST_MINE = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("R", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
+HINTS_LIST = (("tab", "switch view (requested | mine)"), ("/", "filter"), ("h", "bots"), ("R", "refresh"), ("w", "reload"), ("?", "legend"), ("q", "quit"))
 I_COIN, I_USD = "\uf2db", "\uf155"   # tokens (microchip), dollar
 I_SEARCH, I_REPLY, I_WRENCH, I_LINK, I_COPY, I_PLAY, I_GLOBE = "\uf002", "\uf112", "\uf0ad", "\uf0c1", "\uf0c5", "\uf04b", "\uf0ac"
 PANEL_H = 6   # detail panel above the footer: rule, title, link, status, buttons, spacer
@@ -948,7 +948,7 @@ def main(stdscr):
                 start(sel_pr, "ci")
             else:
                 st.flash("CI is not failing on this PR")
-        elif ch == 18:   # ctrl+r
+        elif ch in (ord("R"), 18):   # R (like the inbox) or ctrl+r
             st.refresh()
             next_refresh = time.time() + REFRESH
         elif ch == 9:   # tab: the other view
